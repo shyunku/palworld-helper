@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>모바일 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--bg:#0c0c0c;--panel:#131313;--line:#252525;--hover:#191919;--sel:#1e1e1e;--text:#ececec;--mute:#9a9a9a;--accent:#d9d9d9;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR",sans-serif;padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .phones{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+  .col h4{margin:0 0 6px;color:var(--mute);font-weight:normal;font-size:12px;text-align:center}
+  .phone{width:390px;height:780px;background:var(--bg);border:1px solid #333;border-radius:28px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+  .top{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-shrink:0}
+  .top h1{font-size:16px;margin:0;color:var(--accent);flex:1}
+  .top button,.iconbtn{background:none;border:1px solid var(--line);color:var(--mute);border-radius:8px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer}
+  .search{padding:10px 12px;border-bottom:1px solid var(--line);flex-shrink:0}
+  .search input{width:100%;padding:10px 12px;background:#090909;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
+  .mode{display:flex;gap:4px;margin-top:8px}
+  .mode button{flex:1;height:34px;background:#090909;border:1px solid var(--line);color:var(--mute);border-radius:8px;display:grid;place-items:center;cursor:pointer}
+  .mode button.on{background:var(--sel);color:var(--text);border-color:var(--accent)}
+  small{color:var(--mute);display:block;margin-top:6px}
+  .body{flex:1;overflow:auto;padding:8px 10px}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:8px;min-height:44px}
+  .row:active{background:var(--hover)}
+  .kids{margin-left:14px;border-left:1px solid var(--line);padding-left:6px}
+  .cnt{margin-left:auto;color:var(--mute);font-size:12px}
+  .fi{width:30px;height:30px;border-radius:7px;background:var(--sel);border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0;color:var(--accent)}
+  .fi svg{width:16px;height:16px}
+  .ico{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(to top,#3a3a3a,#1c1c1c);flex-shrink:0;overflow:hidden}
+  .ico img{width:100%}
+  .ico[data-r="2"]{background:linear-gradient(to top,#27547c,#17283b)}
+  .ico[data-r="3"]{background:linear-gradient(to top,#5a2f7c,#241532)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tile{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;overflow:hidden;background:linear-gradient(to top,#3a3a3a,#1c1c1c)}
+  .tile[data-r="2"]{background:linear-gradient(to top,#27547c,#17283b)}
+  .tile[data-r="3"]{background:linear-gradient(to top,#5a2f7c,#241532)}
+  .tile img{flex:1;min-height:0;width:70%;object-fit:contain;transform:translateY(-3px);padding-top:6px}
+  .tile span{width:100%;padding:0 6px 6px;font-size:11px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  nav.tabs{display:flex;border-top:1px solid var(--line);background:var(--panel);flex-shrink:0;padding-bottom:10px}
+  nav.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 4px;color:var(--mute);font-size:11px}
+  nav.tabs a.on{color:var(--text)}
+  nav.tabs svg{width:22px;height:22px;stroke-width:1.75}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .big{width:72px;height:72px;border-radius:12px;overflow:hidden;border:1px solid var(--line);flex-shrink:0}
+  .big .ico{width:100%;height:100%;border-radius:0}
+  h2{margin:0;font-size:18px}
+  .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .tag{background:var(--sel);color:var(--mute);border-radius:4px;padding:1px 8px;font-size:12px}
+  .rname{background:#2fb4ff;color:#04101a;font-weight:700;border-radius:4px;padding:1px 8px;font-size:12px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  .box h3{margin:0 0 8px;font-size:14px;color:var(--accent2)}
+  table{width:100%;border-collapse:collapse}td{padding:8px 6px;border-bottom:1px solid var(--line)}
+  td:first-child{width:40px}.n{text-align:right}
+  .work{display:inline-flex;align-items:center;gap:6px;background:var(--sel);border:1px solid var(--line);border-radius:6px;padding:4px 10px 4px 8px;margin-right:6px}
+  .work img{width:24px;height:24px}.work b{font-size:20px;font-weight:400;line-height:1}
+  .mini{height:240px;border-radius:10px;border:1px solid var(--line);position:relative;overflow:hidden;background:#0b141c}
+  .mini .land{position:absolute;border-radius:50%;background:#26382a;opacity:.8}
+  .dot{position:absolute;width:8px;height:8px;border-radius:50%;background:#ff5a4a;opacity:.8}
+  .back{display:flex;align-items:center;gap:4px;color:var(--text);font-size:14px;background:none;border:0}
+  .tip{position:absolute;left:14px;right:14px;bottom:90px;background:#101010;border:1px solid #333;border-radius:12px;padding:12px;box-shadow:0 8px 24px #000a}
+  .tip b{font-size:15px}.tip p{margin:6px 0;font-size:12px;color:#c9c9c9}
+  .fab{position:absolute;right:14px;display:flex;flex-direction:column;gap:8px}
+  .mapbar{position:absolute;left:12px;right:60px;top:12px}
+  .mapbar select{width:100%;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px}
+  .note{max-width:1250px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="sw" id="sw"><b>목록 보기:</b><button data-m="tree" class="on">계층</button><button data-m="list">목록</button><button data-m="grid">그리드</button></div>
+<div class="phones">
+  <div class="col"><h4>① 목록 화면 (/items)</h4><div class="phone" id="p1"></div></div>
+  <div class="col"><h4>② 상세 화면 (/items/:id) — 뒤로가기로 ①</h4><div class="phone" id="p2"></div></div>
+  <div class="col"><h4>③ 팰 상세 + 분포 지도 (/pals/:id)</h4><div class="phone" id="p3"></div></div>
+  <div class="col"><h4>④ 지도 (/map)</h4><div class="phone" id="p4"></div></div>
+</div>
+<div class="note"><b>바뀌는 것 (좁은 화면, 약 768px 미만에서만)</b><br>
+• 왼쪽 사이드바 → <b>하단 탭바</b>(지도/아이템/팰/구조물). 접기 버튼은 모바일에선 없음.<br>
+• 목록과 상세를 <b>한 화면씩</b> 보여줌: 목록에서 항목을 누르면 상세 화면으로 이동(주소도 바뀌어서 <b>뒤로가기 = 목록 복귀</b>). 상세 상단에 ← 뒤로 버튼.<br>
+• 목록 상단은 검색창 + 보기 형식 아이콘 3개. 그리드는 <b>3열</b>. 터치하기 좋게 행 높이 44px 이상.<br>
+• 상세는 카드가 <b>세로로 쌓임</b>(제작 재료 → 총 필요 재료), 팰 분포 지도는 가로 꽉 차게. 지도 화면은 전체 화면 + 우측 확대/축소 버튼, 두 손가락 확대/드래그 이동.<br>
+• 호버 툴팁은 터치에 없으므로 <b>항목을 길게 누르면</b> 같은 요약 카드가 하단에 뜸(③ 화면 하단에 예시). 짧게 누르면 기존처럼 이동.<br>
+<b>그대로인 것</b>: 데스크톱(넓은 화면) 레이아웃 전부, 색/폰트/아이콘.<br>
+<b>사용자가 정할 것</b>: ① 사이드바를 하단 탭 대신 햄버거 드로어로 할지 ② 툴팁을 길게 누르기로 둘지(아니면 모바일에선 생략) ③ 폰 가로 모드에서는 데스크톱 2단 레이아웃으로 돌려도 되는지.</div>
+<script>
+const I='/icons/';
+const TABS=(on)=>`<nav class="tabs">${[['map','지도'],['backpack','아이템'],['paw-print','팰'],['hammer','구조물']].map(([ic,l])=>`<a class="${l===on?'on':''}"><i data-lucide="${ic}"></i>${l}</a>`).join('')}</nav>`;
+const ITEMS=[['금속 곡괭이','T_itemicon_Weapon_Pickaxe_Tier_00.webp',2],['돌 도끼','T_itemicon_Weapon_Axe_Tier_00.webp',0],['목재','T_itemicon_Material_Wood.webp',0],['제련 주괴','T_itemicon_Material_IronIngot.webp',1],['화살','T_itemicon_Ammo_Arrow.webp',0],['독화살','T_itemicon_Ammo_Arrow_Poison.webp',0],['불화살','T_itemicon_Ammo_Arrow_Fire.webp',0],['야구 방망이','T_itemicon_Weapon_Bat.webp',1],['금속 창','T_itemicon_Weapon_Spear_Bat2.webp',2]];
+function list(m){
+  let body='';
+  if(m==='tree') body=`<div class="row"><span class="fi"><i data-lucide="library"></i></span><b>전체</b><span class="cnt">1873개</span></div><div class="kids">
+   <div class="row"><span class="fi"><i data-lucide="sword"></i></span>무기<span class="cnt">132개</span></div>
+   <div class="kids"><div class="row"><span class="fi"><i data-lucide="sword"></i></span>근접 무기<span class="cnt">41개</span></div><div class="kids">${ITEMS.slice(0,2).map(i=>`<div class="row"><span class="ico" data-r="${i[2]}"><img src="${I}${i[1]}"></span>${i[0]}</div>`).join('')}</div></div>
+   <div class="row"><span class="fi"><i data-lucide="shield"></i></span>방어구<span class="cnt">109개</span></div>
+   <div class="row"><span class="fi"><i data-lucide="boxes"></i></span>소재<span class="cnt">189개</span></div>
+   <div class="row"><span class="fi"><i data-lucide="flask-conical"></i></span>소모품<span class="cnt">233개</span></div></div>`;
+  else if(m==='list') body=ITEMS.map(i=>`<div class="row"><span class="ico" data-r="${i[2]}"><img src="${I}${i[1]}"></span>${i[0]}<span class="cnt">소재 › 목재</span></div>`).join('');
+  else body=`<div class="grid">${ITEMS.concat(ITEMS).map(i=>`<div class="tile" data-r="${i[2]}"><img src="${I}${i[1]}"><span>${i[0]}</span></div>`).join('')}</div>`;
+  return `<div class="top"><h1>팰월드 도우미</h1></div><div class="search"><input placeholder="아이템 검색 (예: 금속)">
+   <div class="mode"><button class="${m==='tree'?'on':''}"><i data-lucide="list-tree"></i></button><button class="${m==='list'?'on':''}"><i data-lucide="list"></i></button><button class="${m==='grid'?'on':''}"><i data-lucide="layout-grid"></i></button></div><small>전체 1873개</small></div>
+   <div class="body">${body}</div>${TABS('아이템')}`;
+}
+const detail=`<div class="top"><button class="back" style="width:auto;padding:0 8px"><i data-lucide="chevron-left"></i>목록</button><h1 style="text-align:center;font-size:15px">금속 곡괭이</h1><span style="width:60px"></span></div>
+ <div class="body"><div class="head"><div class="big"><span class="ico" data-r="2"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span></div><div><h2>금속 곡괭이</h2><div class="tags"><span class="rname">희귀</span><span class="tag">무기 › 근접 무기</span><span class="tag" style="border:1px solid #333;color:var(--text)">상급 작업대 ↗</span></div></div></div>
+ <p style="color:var(--mute);margin:0 0 12px">채굴용 곡괭이. 내구도와 효율이 향상됐다.</p>
+ <div class="box"><h3>제작 재료 (1개당)</h3><table><tr><td><span class="ico"><img src="${I}T_itemicon_Material_IronIngot.webp"></span></td><td>제련 주괴</td><td class="n">10</td></tr><tr><td><span class="ico"><img src="${I}T_itemicon_Material_Wood.webp"></span></td><td>나무 판자</td><td class="n">4</td></tr></table></div>
+ <div class="box"><h3>총 필요 재료</h3><div style="margin-bottom:8px">만들 개수 <input value="1" style="width:60px;padding:6px;background:#090909;border:1px solid var(--line);color:var(--text);border-radius:6px"> 개</div><table><tr><td><span class="ico"><img src="${I}T_itemicon_Material_IronIngot.webp"></span></td><td>금속 광석</td><td class="n">20</td></tr></table></div></div>${TABS('아이템')}`;
+const pal=`<div class="top"><button class="back" style="width:auto;padding:0 8px"><i data-lucide="chevron-left"></i>목록</button><h1 style="text-align:center;font-size:15px">아누비스</h1><span style="width:60px"></span></div>
+ <div class="body"><div class="head"><div class="big"><span class="ico"><img src="${I}T_Anubis_icon_normal.webp"></span></div><div><h2>아누비스 <span style="color:var(--mute);font-size:13px;font-weight:400">#139</span></h2><div class="tags"><span class="tag" style="padding:2px 8px">땅 속성</span></div></div></div>
+ <div class="box"><h3>작업 적성</h3><span class="work"><img src="${I}T_icon_palwork_04.webp"><b>6</b></span><span class="work"><img src="${I}T_icon_palwork_07.webp"><b>6</b></span><span class="work"><img src="${I}T_icon_palwork_11.webp"><b>4</b></span></div>
+ <div class="box"><h3>서식 분포 지도</h3><div style="display:flex;gap:6px;margin-bottom:8px"><span class="tag">낮</span><span class="tag">밤</span><span class="tag" style="margin-left:auto">지도에서 크게 보기 →</span></div><div class="mini"><span class="land" style="left:15%;top:20%;width:45%;height:55%"></span><span class="land" style="left:55%;top:5%;width:30%;height:35%"></span>${[[30,40],[34,52],[62,18],[66,24],[40,60]].map(([x,y])=>`<span class="dot" style="left:${x}%;top:${y}%"></span>`).join('')}</div></div>
+ <div class="box"><h3>드롭 아이템 <small style="display:inline;margin-left:6px">길게 누르면 요약</small></h3><span class="tag" style="padding:6px 10px">뼈 3~5</span> <span class="tag" style="padding:6px 10px;border:1px solid var(--accent)">혁신적인 기술서 5%</span></div></div>
+ <div class="tip"><div style="display:flex;gap:10px;align-items:center"><span class="ico" data-r="3" style="width:40px;height:40px"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span><div><b>혁신적인 기술서</b><div style="color:var(--mute);font-size:12px">영웅 · 소모품 › 기술 서적</div></div></div><p>사용하면 새로운 기술을 배울 수 있다.</p><div style="font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:6px">기본 재료 (제작 불가)</div></div>
+ ${TABS('팰')}`;
+const map=`<div class="top"><h1>지도</h1></div><div style="flex:1;position:relative;background:#0b141c;overflow:hidden"><span class="land" style="position:absolute;left:12%;top:18%;width:52%;height:50%;border-radius:50%;background:#26382a"></span><span class="land" style="position:absolute;left:55%;top:8%;width:36%;height:30%;border-radius:50%;background:#2a2a30"></span>
+ <div class="mapbar"><select><option>팰 서식지 표시 안 함</option></select></div>
+ <div class="fab" style="top:64px"><button class="iconbtn" style="background:var(--panel)"><i data-lucide="plus"></i></button><button class="iconbtn" style="background:var(--panel)"><i data-lucide="minus"></i></button><button class="iconbtn" style="background:var(--panel)"><i data-lucide="locate-fixed"></i></button></div>
+ <div style="position:absolute;left:12px;bottom:12px;background:#000a;padding:6px 10px;border-radius:8px;font-size:12px;color:var(--mute)">두 손가락으로 확대/축소 · 드래그 이동</div></div>${TABS('지도')}`;
+function draw(m){p1.innerHTML=list(m);p2.innerHTML=detail;p3.innerHTML=pal;p4.innerHTML=map;lucide.createIcons()}
+sw.onclick=e=>{const m=e.target.dataset.m;if(!m)return;document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b===e.target));draw(m)};
+draw('tree');
+</script>
+</body>
+</html>

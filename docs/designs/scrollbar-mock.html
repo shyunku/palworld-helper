@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>스크롤바 시안</title>
+<style>
+  :root{--bg:#0c0c0c;--panel:#131313;--line:#252525;--text:#ececec;--mute:#9a9a9a;--hover:#191919}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Segoe UI","Malgun Gothic",sans-serif;padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .wrap{display:flex;gap:16px}
+  .col{width:380px}
+  .col h4{margin:0 0 6px;color:var(--mute);font-weight:normal;font-size:12px}
+  .panel{height:560px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:auto;padding:8px}
+  .row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px}
+  .row:hover{background:var(--hover)}
+  .ico{width:28px;height:28px;border-radius:6px;background:linear-gradient(to top,#3a3a3a,#1c1c1c);flex-shrink:0}
+  .path{margin-left:auto;color:var(--mute);font-size:11px}
+  .note{width:800px;font-size:12px;color:var(--mute)}
+  .note b{color:#ffb84c}
+
+  /* current (before) */
+  #before{}
+  /* A: thin, dark, rounded; thumb brightens on hover */
+  #A{scrollbar-width:thin;scrollbar-color:#2e2e2e transparent}
+  #A::-webkit-scrollbar{width:8px;height:8px}
+  #A::-webkit-scrollbar-track{background:transparent}
+  #A::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  #A::-webkit-scrollbar-thumb:hover{background:#4a4a4a;background-clip:content-box}
+  /* B: overlay-like, thumb only visible while hovering the list */
+  #B{scrollbar-width:thin;scrollbar-color:transparent transparent}
+  #B:hover{scrollbar-color:#3a3a3a transparent}
+  #B::-webkit-scrollbar{width:8px}
+  #B::-webkit-scrollbar-thumb{background:transparent;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  #B:hover::-webkit-scrollbar-thumb{background:#3a3a3a;background-clip:content-box}
+  #B::-webkit-scrollbar-thumb:hover{background:#5a5a5a;background-clip:content-box}
+  /* C: thin line style (4px), always visible, very subtle */
+  #C{scrollbar-width:thin;scrollbar-color:#242424 #0c0c0c}
+  #C::-webkit-scrollbar{width:5px}
+  #C::-webkit-scrollbar-track{background:transparent}
+  #C::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px}
+  #C::-webkit-scrollbar-thumb:hover{background:#444}
+  /* smooth scroll option */
+  .smooth{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<div class="sw" id="sw">
+  <b>시안:</b>
+  <button data-v="all" class="on">전부 나란히</button>
+  <button data-v="A">A</button><button data-v="B">B</button><button data-v="C">C</button>
+</div>
+<div class="wrap" id="wrap"></div>
+<div class="note">
+  <b>바뀌는 것</b>: 아이템 목록/트리/그리드의 세로 스크롤바(그리고 상세 화면 스크롤바) 모양. 다른 화면 요소는 그대로.<br>
+  <b>사용자가 정할 것</b>: ① A/B/C 중 하나 ② 스크롤 이동 자체도 부드럽게(스크롤 애니메이션) 할지 — 마우스 휠은 브라우저 기본 동작이라 보통 건드리지 않음.<br>
+  A: 얇은(8px) 어두운 막대, 마우스 올리면 약간 밝아짐 · B: 평소엔 안 보이고 목록에 마우스를 올릴 때만 나타남 · C: 아주 얇은(5px) 항상 표시.
+</div>
+<script>
+const names=['강화된 릴리의 창','개조 팰의 오염된 핵','개틀링 건','개틀링 레이저 카트리지','거대 먹이 주머니','거대 확장 파우치','거인의 비약','거친 느낌의 알','건다리의 장갑','검은 가죽','고급 부품','고급 천','금속 광석','금속 주괴','나무','돌격 소총','돌','섬유','석탄','수제 총'];
+const items=[...names,...names,...names];
+const rows=items.map((n,i)=>`<div class="row"><span class="ico"></span><span>${n}</span><span class="path">소재 › 알</span></div>`).join('');
+const defs=[['before','현재 (기본 스크롤바)'],['A','A · 얇고 어두움'],['B','B · 호버 시에만 표시'],['C','C · 아주 얇음']];
+function draw(v){document.getElementById('wrap').innerHTML=defs.filter(d=>v==='all'||d[0]===v||d[0]==='before').map(d=>`<div class="col"><h4>${d[1]}</h4><div class="panel" id="${d[0]}">${rows}</div></div>`).join('')}
+document.getElementById('sw').onclick=e=>{const v=e.target.dataset.v;if(!v)return;document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b===e.target));draw(v)};
+draw('all');
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>아이콘 시안</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gothic+A1:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--bg:#0c0c0c;--panel:#131313;--line:#252525;--sel:#1e1e1e;--text:#ececec;--mute:#9a9a9a;--accent:#d9d9d9}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 var(--body,"Segoe UI","Malgun Gothic",sans-serif);padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .row{display:flex;gap:20px;align-items:flex-start}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px}
+  .card h3{margin:0 0 8px;font-family:var(--head,inherit);font-size:18px}
+  .card h4{margin:0 0 10px;color:var(--mute);font-weight:normal;font-size:12px}
+  nav{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 10px}
+  nav.open{width:200px}nav.closed{width:56px}
+  nav h1{font-family:var(--head,inherit);font-size:16px;margin:0 6px 14px;color:var(--accent)}
+  nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--mute);cursor:pointer;margin-bottom:4px;white-space:nowrap}
+  nav a.on{background:var(--sel);color:var(--text)}
+  nav.closed a span,nav.closed h1 span{display:none}
+  nav .tog{background:none;border:1px solid var(--line);color:var(--mute);border-radius:6px;width:32px;height:32px;cursor:pointer;margin-bottom:12px;display:grid;place-items:center}
+  svg.lucide{width:18px;height:18px;stroke-width:1.75}
+  .works{display:flex;flex-wrap:wrap;gap:6px}
+  .work{display:inline-flex;align-items:center;gap:6px;background:var(--sel);border:1px solid var(--line);border-radius:6px;padding:4px 10px 4px 8px}
+  .work img,.work .gi{width:24px;height:24px;display:grid;place-items:center;font-size:18px;background:none;border-radius:0}
+  .work b{font-size:20px;line-height:1;font-family:var(--num,inherit);font-weight:400}
+  .work small{color:var(--mute);font-size:12px}
+  .el{display:inline-flex;align-items:center;gap:4px;background:var(--sel);border:1px solid var(--line);border-radius:4px;padding:1px 8px 1px 4px;font-size:12px}
+  .el .gi{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px}
+  .note{width:760px;font-size:12px;color:var(--mute)}.note b{color:#ffb84c}
+</style>
+</head>
+<body>
+<div class="sw" id="sw"><b>팰 작업 적성 표시:</b>
+  <button data-v="A" class="on">A · 아이콘 + 굵은 레벨</button>
+  <button data-v="B">B · 아이콘 + 굵은 레벨 + 이름</button></div>
+<div class="sw" id="fb"><b>본문 폰트:</b>
+  <button data-f="&quot;Segoe UI&quot;,&quot;Malgun Gothic&quot;,sans-serif" class="on">현재(시스템)</button>
+  <button data-f="Pretendard,sans-serif">Pretendard</button>
+  <button data-f="&quot;Noto Sans KR&quot;,sans-serif">Noto Sans KR</button>
+  <button data-f="&quot;Gothic A1&quot;,sans-serif">Gothic A1</button></div>
+<div class="sw" id="fh"><b>제목/숫자 폰트:</b>
+  <button data-h="inherit" class="on">본문과 동일</button>
+  <button data-h="&quot;Black Han Sans&quot;,sans-serif">Black Han Sans</button>
+  <button data-h="&quot;Do Hyeon&quot;,sans-serif">Do Hyeon</button></div>
+<div class="row">
+  <div class="card"><h4>왼쪽 메뉴 (펼침)</h4>
+    <nav class="open"><button class="tog"><i data-lucide="menu"></i></button><h1><span>팰월드 도우미</span></h1>
+      <a><i data-lucide="map"></i><span>지도</span></a>
+      <a class="on"><i data-lucide="backpack"></i><span>아이템</span></a>
+      <a><i data-lucide="paw-print"></i><span>팰</span></a>
+      <a><i data-lucide="hammer"></i><span>구조물</span></a></nav></div>
+  <div class="card"><h4>왼쪽 메뉴 (접힘)</h4>
+    <nav class="closed"><button class="tog"><i data-lucide="menu"></i></button>
+      <a><i data-lucide="map"></i><span>지도</span></a>
+      <a class="on"><i data-lucide="backpack"></i><span>아이템</span></a>
+      <a><i data-lucide="paw-print"></i><span>팰</span></a>
+      <a><i data-lucide="hammer"></i><span>구조물</span></a></nav></div>
+  <div class="card" style="width:440px"><h4>팰 상세 (아누비스 예시)</h4><h3>아누비스 <span style="color:var(--mute);font-size:14px">#139</span></h3>
+    <div style="margin-bottom:10px"><span class="el"><span class="gi" style="background:#c49a5b">⛰</span>땅 속성</span></div>
+    <div class="works" id="works"></div>
+    <p style="color:var(--mute);font-size:12px;margin:12px 0 0">※ 작업 적성 아이콘은 실제 앱에선 게임 아이콘(수작업/채굴/운반…)이 들어감. 시안에서는 자리 표시용.</p></div>
+</div>
+<div class="note"><b>바뀌는 것</b>: ① 왼쪽 메뉴의 이모지 → lucide 아이콘(지도·배낭·발바닥·망치), ② 팰 작업 적성 칩: 게임처럼 <b>아이콘 + 굵은 숫자(레벨)</b>. 마우스를 올리면 작업 이름이 툴팁으로 뜸.<br>
+<b>그대로인 것</b>: 속성 배지(아이콘+이름), 나머지 화면.<br>
+<b>폰트</b>: 팰월드 게임 폰트는 공개 정보가 없고 개발사 저작물이라 그대로 쓸 수 없음. 비슷한 느낌의 무료 폰트 후보를 위 버튼으로 비교(본문 / 제목·숫자 따로).<br><b>사용자가 정할 것</b>: 작업 적성에 이름을 같이 둘지(B) 아이콘+숫자만(A). 그리고 "팰 속성"을 <b>작업 적성</b>(레벨이 있는 것)으로 해석했음 — 맞는지. (속성=불/물 등은 레벨이 없어서 아이콘만 둠)</div>
+<script>
+const W=[['수작업',6,'✋'],['채굴',6,'⛏'],['운반',4,'📦']];
+function draw(v){document.getElementById('works').innerHTML=W.map(([n,l,g])=>`<span class="work" title="${n} Lv.${l}"><span class="gi">${g}</span><b>${l}</b>${v==='B'?`<small>${n}</small>`:''}</span>`).join('')}
+document.getElementById('sw').onclick=e=>{const v=e.target.dataset.v;if(!v)return;document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b===e.target));draw(v)};
+document.getElementById('fb').onclick=e=>{const f=e.target.dataset.f;if(!f)return;document.querySelectorAll('#fb button').forEach(b=>b.classList.toggle('on',b===e.target));document.documentElement.style.setProperty('--body',f)};
+document.getElementById('fh').onclick=e=>{const f=e.target.dataset.h;if(!f)return;document.querySelectorAll('#fh button').forEach(b=>b.classList.toggle('on',b===e.target));document.documentElement.style.setProperty('--head',f);document.documentElement.style.setProperty('--num',f)};
+draw('A');lucide.createIcons();
+</script>
+</body>
+</html>

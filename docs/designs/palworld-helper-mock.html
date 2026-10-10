@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>팰월드 도우미 시안</title>
+<style>
+  :root{--bg:#10151c;--panel:#18202b;--line:#2a3544;--text:#e6edf5;--mute:#8b9bb0;--accent:#4cc3ff;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#07090c;color:var(--text);font:14px/1.5 "Segoe UI","Malgun Gothic",sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px;gap:12px}
+  .switch{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .switch button{background:#222c3a;color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer}
+  .switch button.on{background:var(--accent);color:#04202f;border-color:var(--accent)}
+  .switch span{color:var(--mute);margin-left:8px}
+  .app{width:1280px;height:760px;background:var(--bg);border:1px solid var(--line);border-radius:8px;display:flex;overflow:hidden}
+  nav{width:200px;background:var(--panel);border-right:1px solid var(--line);padding:16px 10px;flex-shrink:0}
+  nav h1{font-size:16px;margin:0 6px 16px;color:var(--accent)}
+  nav a{display:flex;gap:8px;padding:9px 10px;border-radius:6px;color:var(--mute);cursor:pointer;margin-bottom:4px}
+  nav a.on{background:#243246;color:var(--text)}
+  main{flex:1;display:flex;min-width:0}
+  .list{width:380px;border-right:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0}
+  .search{padding:12px;border-bottom:1px solid var(--line)}
+  .search input{width:100%;padding:9px 12px;background:#0d1219;border:1px solid var(--line);border-radius:6px;color:var(--text);font-size:14px}
+  .search small{color:var(--mute);display:block;margin-top:6px}
+  .tree{overflow:auto;padding:8px;flex:1}
+  .node>.row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer}
+  .node>.row:hover{background:#1f2a38}
+  .node>.row.sel{background:#243246;outline:1px solid var(--accent)}
+  .node .kids{margin-left:16px;border-left:1px solid var(--line);padding-left:6px}
+  .arrow{width:12px;color:var(--mute);font-size:10px}
+  .ico{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font-size:16px;background:#2a3544;flex-shrink:0}
+  .cnt{margin-left:auto;color:var(--mute);font-size:12px}
+  mark{background:#ffb84c55;color:inherit;border-radius:2px}
+  .detail{flex:1;padding:24px;overflow:auto}
+  .head{display:flex;gap:16px;align-items:center;margin-bottom:20px}
+  .head .big{width:88px;height:88px;border-radius:12px;background:#2a3544;display:grid;place-items:center;font-size:44px;border:1px solid var(--line)}
+  .head h2{margin:0}
+  .tag{display:inline-block;background:#243246;color:var(--mute);border-radius:4px;padding:1px 8px;font-size:12px;margin-right:4px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:16px}
+  .box h3{margin:0 0 10px;font-size:14px;color:var(--accent2)}
+  .qty{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .qty input{width:70px;padding:5px 8px;background:#0d1219;border:1px solid var(--line);border-radius:6px;color:var(--text)}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--mute);font-weight:normal;font-size:12px}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .mapwrap{flex:1;position:relative;background:#0b1a2a;overflow:hidden;display:grid;place-items:center}
+  .mapimg{width:900px;height:900px;background:
+    radial-gradient(circle at 40% 45%,#3b5a3a 0 22%,transparent 23%),
+    radial-gradient(circle at 62% 30%,#6b6b4a 0 14%,transparent 15%),
+    radial-gradient(circle at 30% 70%,#4a5f6b 0 12%,transparent 13%),#12324d;
+    border-radius:50%;opacity:.9;display:grid;place-items:center;color:#cfe;font-size:18px}
+  .mapctl{position:absolute;right:16px;top:16px;display:flex;flex-direction:column;gap:6px}
+  .mapctl button{width:34px;height:34px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;font-size:18px;cursor:pointer}
+  .note{position:absolute;left:16px;bottom:16px;background:#000a;padding:8px 12px;border-radius:6px;color:var(--mute);font-size:12px}
+  .legend{width:340px;margin-top:10px;font-size:12px;color:var(--mute)}
+  .side{width:260px;border-left:1px dashed var(--accent2);padding:12px;font-size:12px;color:var(--mute)}
+  .side b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="switch" id="sw">
+  <b>시안 전환:</b>
+  <button data-v="items" class="on">아이템 (기본)</button>
+  <button data-v="search">아이템 + 검색 중</button>
+  <button data-v="map">지도</button>
+  <span>※ 아래 창은 실제 앱 크기(1280x760) 기준</span>
+</div>
+
+<div class="app">
+  <nav>
+    <h1>팰월드 도우미</h1>
+    <a data-nav="map">🗺️ 지도</a>
+    <a data-nav="items" class="on">🎒 아이템</a>
+  </nav>
+  <main id="main"></main>
+</div>
+
+<div class="legend">
+  <b style="color:var(--accent2)">바뀌는 것</b>: 새 사이트(왼쪽 메뉴 지도/아이템). <b style="color:var(--accent2)">사용자가 정할 것</b>: 오른쪽 점선 안내 참고. 아이콘은 시안용 이모지이고, 실제로는 게임 아이템 이미지.
+</div>
+
+<script>
+const DATA = {
+  name:'전체', icon:'📦', kids:[
+    {name:'무기', icon:'⚔️', kids:[
+      {name:'근접 무기', icon:'🗡️', kids:[
+        {name:'나무 몽둥이', icon:'🏏', recipe:[['나무',5]]},
+        {name:'돌 도끼', icon:'🪓', recipe:[['나무',5],['돌',3]]}]},
+      {name:'총기', icon:'🔫', kids:[
+        {name:'수제 총', icon:'🔫', recipe:[['금속 주괴',10],['나무',4]]},
+        {name:'돌격 소총', icon:'🪖', recipe:[['정제 금속 주괴',20],['고급 부품',5]]}]}]},
+    {name:'방어구', icon:'🛡️', kids:[
+      {name:'천 옷', icon:'👕', recipe:[['섬유',5]]},
+      {name:'금속 갑옷', icon:'🛡️', recipe:[['금속 주괴',15],['가죽',5]]}]},
+    {name:'재료', icon:'🧱', kids:[
+      {name:'나무', icon:'🪵'},{name:'돌', icon:'🪨'},{name:'섬유', icon:'🧵'},{name:'가죽', icon:'🟫'},
+      {name:'금속 광석', icon:'⛏️'},
+      {name:'금속 주괴', icon:'🔩', recipe:[['금속 광석',2]]},
+      {name:'정제 금속 주괴', icon:'⚙️', recipe:[['금속 주괴',3],['석탄',1]]},
+      {name:'석탄', icon:'⚫'},{name:'고급 부품', icon:'🔧', recipe:[['금속 주괴',3],['섬유',2]]}]}
+  ]};
+const byName={};(function idx(n){byName[n.name]=n;(n.kids||[]).forEach(idx)})(DATA);
+const leaves=n=>n.kids?n.kids.flatMap(leaves):[n];
+function raw(name,q,acc){const n=byName[name];if(!n||!n.recipe){acc[name]=(acc[name]||0)+q;return acc}
+  n.recipe.forEach(([m,c])=>raw(m,c*q,acc));return acc}
+
+let state={view:'items',q:'',sel:'돌격 소총',open:new Set(['전체','무기','총기','재료']),qty:1};
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const hl=t=>state.q?esc(t).replace(new RegExp('('+state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>'):esc(t);
+function match(n){return !state.q||n.name.includes(state.q)||(n.kids||[]).some(match)}
+function tree(n){
+  if(!match(n))return'';
+  const isDir=!!n.kids, open=state.q||state.open.has(n.name);
+  let h=`<div class="node"><div class="row ${state.sel===n.name?'sel':''}" data-n="${n.name}" data-dir="${isDir?1:0}">
+    <span class="arrow">${isDir?(open?'▼':'▶'):''}</span><span class="ico">${n.icon}</span><span>${hl(n.name)}</span>
+    ${isDir?`<span class="cnt">${leaves(n).length}개</span>`:''}</div>`;
+  if(isDir&&open)h+=`<div class="kids">${n.kids.map(tree).join('')}</div>`;
+  return h+'</div>';
+}
+function detail(){
+  const n=byName[state.sel];if(!n||n.kids)return'<div class="detail">왼쪽에서 아이템을 선택하세요</div>';
+  let h=`<div class="detail"><div class="head"><div class="big">${n.icon}</div><div><h2>${n.name}</h2>
+    <span class="tag">${path(n)}</span></div></div>`;
+  if(n.recipe){
+    const q=state.qty,tot=raw(n.name,q,{});
+    h+=`<div class="box"><h3>제작 재료 (1개당)</h3><table><tr><th></th><th>재료</th><th style="text-align:right">필요 수량</th></tr>
+      ${n.recipe.map(([m,c])=>`<tr><td><span class="ico">${byName[m].icon}</span></td><td>${m}${byName[m].recipe?' <span class="tag">제작 가능</span>':''}</td><td class="n">${c}</td></tr>`).join('')}</table></div>
+    <div class="box"><h3>총 필요 재료 (하위 재료까지 전부 풀어서)</h3>
+      <div class="qty">만들 개수 <input type="number" min="1" value="${q}" id="qty"> 개</div>
+      <table><tr><th></th><th>기본 재료</th><th style="text-align:right">합계</th></tr>
+      ${Object.entries(tot).map(([m,c])=>`<tr><td><span class="ico">${byName[m].icon}</span></td><td>${m}</td><td class="n">${c}</td></tr>`).join('')}</table></div>`;
+  } else h+=`<div class="box"><h3>제작 재료</h3>기본 재료라 제작 불가 (채집/드롭으로 획득)</div>`;
+  return h+'</div>';
+}
+function path(t){let r=[];(function f(n,p){if(n===t){r=p;return true}return (n.kids||[]).some(k=>f(k,[...p,n.name]))})(DATA,[]);return r.join(' › ')}
+function render(){
+  const m=document.getElementById('main');
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.nav===(state.view==='map'?'map':'items')));
+  document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.v===(state.view==='map'?'map':state.q?'search':'items')));
+  if(state.view==='map'){
+    m.innerHTML=`<div class="mapwrap"><div class="mapimg">팰파고스 섬 맵 이미지</div>
+      <div class="mapctl"><button>＋</button><button>－</button><button title="처음 위치">⌂</button></div>
+      <div class="note">마우스 휠 확대/축소 · 드래그 이동 (마커는 이번 범위 제외)</div></div>
+      <div class="side"><b>사용자가 정할 것</b><br>• 맵 이미지는 공개 자료에서 받아 저장 예정<br>• 마커(보스/던전 등)는 다음 단계</div>`;
+    return;
+  }
+  m.innerHTML=`<div class="list"><div class="search"><input id="q" placeholder="아이템 검색 (예: 금속)" value="${state.q}">
+    <small>${state.q?`검색 결과: ${leaves(DATA).filter(l=>l.name.includes(state.q)).length}개 · 일치 항목 폴더는 자동으로 펼쳐짐`:'폴더 옆 숫자 = 그 안의 아이템 개수'}</small></div>
+    <div class="tree">${tree(DATA)}</div></div>${detail()}
+    <div class="side"><b>사용자가 정할 것</b><br>• 폴더 계층 기준: 지금은 무기/방어구/재료… 게임 분류 따름<br>• 총 필요 재료의 '만들 개수' 입력 유지<br><br><b>그대로인 것</b><br>• 왼쪽 메뉴는 지도/아이템 2개만</div>`;
+  const q=document.getElementById('q');
+  q.oninput=e=>{state.q=e.target.value.trim();const p=e.target.selectionStart;render();const i=document.getElementById('q');i.focus();i.setSelectionRange(p,p)};
+  document.querySelectorAll('.row').forEach(r=>r.onclick=()=>{
+    const n=r.dataset.n;if(r.dataset.dir==='1'){state.open.has(n)?state.open.delete(n):state.open.add(n)}else state.sel=n;render()});
+  const qt=document.getElementById('qty');if(qt)qt.oninput=e=>{state.qty=Math.max(1,+e.target.value||1);const p=e.target.selectionStart;render();const i=document.getElementById('qty');i.focus()};
+}
+document.getElementById('sw').onclick=e=>{const v=e.target.dataset.v;if(!v)return;
+  if(v==='map')state.view='map';else{state.view='items';state.q=v==='search'?'금속':''}render()};
+document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>{state.view=a.dataset.nav;render()});
+render();
+</script>
+</body>
+</html>

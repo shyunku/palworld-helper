@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>폴더 아이콘 / 호버 툴팁 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--bg:#0c0c0c;--panel:#131313;--line:#252525;--hover:#191919;--sel:#1e1e1e;--text:#ececec;--mute:#9a9a9a;--accent:#d9d9d9;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR",sans-serif;padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid var(--line);padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:4px}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .wrap{display:flex;gap:16px;align-items:flex-start}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:380px;min-height:500px}
+  .card h4{margin:0 0 8px;color:var(--mute);font-weight:normal;font-size:12px}
+  .row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;cursor:pointer}
+  .row:hover{background:var(--hover)}
+  .arrow{width:12px;color:var(--mute);font-size:10px}
+  .cnt{margin-left:auto;color:var(--mute);font-size:12px}
+  .kids{margin-left:16px;border-left:1px solid var(--line);padding-left:6px}
+  .fi{width:28px;height:28px;border-radius:6px;background:var(--sel);border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0;color:var(--accent)}
+  .fi svg{width:16px;height:16px;stroke-width:1.75}
+  .fi img{width:20px;height:20px}
+  .fi.plain{background:none;border:0}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;width:520px}
+  .box h3{margin:0 0 10px;font-size:14px;color:var(--accent2)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--sel);border:1px solid var(--line);border-radius:6px;padding:2px 10px 2px 4px;font-size:12px;cursor:pointer;position:relative}
+  .chip:hover{border-color:var(--accent)}
+  .chip img{width:22px;height:22px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+  tr.go{cursor:pointer}tr.go:hover td{background:var(--hover)}
+  td img{width:24px;height:24px;vertical-align:middle;margin-right:8px}
+  /* tooltip */
+  #tip{position:fixed;z-index:10;width:280px;background:#101010;border:1px solid #333;border-radius:10px;padding:12px;box-shadow:0 8px 24px #000a;pointer-events:none;display:none}
+  #tip .t{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  #tip .ico{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(to top,#27547c,#17283b);flex-shrink:0}
+  #tip .ico img{width:100%}
+  #tip b{font-size:15px}
+  #tip .sub{color:var(--mute);font-size:12px}
+  #tip p{margin:0 0 8px;color:#c9c9c9;font-size:12px;line-height:1.5}
+  #tip .kv{font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:6px}
+  #tip .kv span{color:var(--text)}
+  .note{width:900px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="sw" id="sw"><b>폴더 아이콘 종류:</b>
+  <button data-v="items" class="on">아이템</button><button data-v="pals">팰 (속성/작업)</button><button data-v="structs">구조물</button></div>
+<div class="wrap">
+  <div class="card"><h4>왼쪽 목록 (폴더 아이콘)</h4><div id="tree"></div></div>
+  <div><div class="box"><h3>여기서 만들 수 있는 아이템 · 마우스를 올려 보세요</h3>
+    <div class="chips" id="chips"></div>
+    <table id="mats"></table></div></div>
+</div>
+<div id="tip"></div>
+<div class="note"><b>바뀌는 것</b>: ① 폴더마다 의미에 맞는 아이콘(위 전환 버튼) — 아이템/구조물은 lucide 아이콘, 팰 속성·작업 적성 폴더는 게임 실제 아이콘. 아이콘이 없는 소분류 폴더는 대분류 아이콘을 작게 따라감. ② 링크로 걸린 항목(재료 행, 칩, 드롭, 제작대 태그, 팰 드롭 등)에 마우스를 올리면 요약 카드가 뜸: 아이콘·이름·등급, 한 줄 설명, 핵심 수치(아이템=제작 재료/제작대, 팰=속성·작업 적성, 구조물=기술 Lv/포인트).<br>
+<b>그대로인 것</b>: 클릭 이동, 목록/상세 레이아웃.<br>
+<b>사용자가 정할 것</b>: 툴팁을 마우스 따라다니게 할지 / 항목 옆에 고정할지(시안은 옆에 고정), 모바일(터치)에서는 툴팁 대신 길게 누르기로 대체할지.</div>
+<script>
+const I='/icons/';
+const EL=(n)=>`https://cdn.paldb.cc/image/Pal/Texture/UI/InGame/T_Icon_element_s_0${n}.webp`;
+const WK=(n)=>`${I}T_icon_palwork_${n}.webp`;
+const T={
+ items:[['무기','sword',['근접 무기','sword'],['돌격 소총','crosshair'],['활','target']],['방어구','shield',['몸 방어구','shirt'],['머리 방어구','hard-hat'],['방패','shield-half']],['장신구','gem'],['탄약','bomb'],['소모품','flask-conical',['기술 서적','book-open'],['능력치 상승','trending-up']],['식재료·요리','utensils-crossed',['고기','beef'],['채소','carrot'],['생선','fish']],['소재','boxes',['광석','mountain'],['목재','trees'],['주괴','layers']],['귀중품','star'],['설계도','scroll-text'],['스피어','circle-dot'],['글라이더','wind']],
+ pals:[['무속성',null,EL(0)],['화염 속성',null,EL(1)],['물 속성',null,EL(2)],['풀 속성',null,EL(3)],['번개 속성',null,EL(4)],['어둠 속성',null,EL(5)],['용 속성',null,EL(6)],['땅 속성',null,EL(7)],['얼음 속성',null,EL(8)],['— 작업 적성별 —','minus'],['수작업',null,WK('04')],['채굴',null,WK('07')],['운반',null,WK('11')],['벌목',null,WK('06')]],
+ structs:[['생산','factory'],['저장','archive'],['식량','utensils'],['인프라','plug-zap'],['조명','lamp'],['기초','brick-wall'],['방어','shield-half'],['가구','armchair'],['팰','paw-print'],['기타','ellipsis']]};
+function draw(v){
+  document.getElementById('tree').innerHTML=T[v].map(([n,ic,...rest])=>{
+    const img=typeof rest[0]==='string'?rest[0]:null, subs=img?[]:rest;
+    const icon=img?`<img src="${img}" alt="">`:`<i data-lucide="${ic}"></i>`;
+    return `<div><div class="row"><span class="arrow">${subs.length?'▼':'▶'}</span><span class="fi ${img?'plain':''}">${icon}</span><span>${n}</span><span class="cnt">12개</span></div>${subs.length?`<div class="kids">${subs.map(([sn,si])=>`<div class="row"><span class="arrow">▶</span><span class="fi"><i data-lucide="${si}"></i></span><span>${sn}</span><span class="cnt">4개</span></div>`).join('')}</div>`:''}</div>`}).join('');
+  lucide.createIcons();
+}
+// tooltip data
+const TIP={
+ '금속 곡괭이':{icon:'T_itemicon_Weapon_Pickaxe_Tier_00.webp',sub:'희귀 · 무기 › 근접 무기',d:'채굴용 곡괭이. 내구도와 효율이 향상됐다.',kv:'제작 재료: <span>제련 주괴 10 · 나무 판자 4</span><br>제작대: <span>상급 작업대</span>'},
+ '목재':{icon:'T_itemicon_Material_Wood.webp',sub:'일반 · 소재 › 목재',d:'나무를 벌목해서 얻는 기본 소재.',kv:'기본 재료 (제작 불가) · 벌목으로 획득'},
+ '상급 작업대':{icon:'T_itemicon_Material_Wood.webp',sub:'구조물 · 생산',d:'아이템 및 방어구를 제작하는 데 필요한 작업대.',kv:'기술 Lv.<span>11</span> · 기술 포인트 <span>3</span> · 고대 <span>0</span>'},
+ '아누비스':{icon:'T_itemicon_Material_Wood.webp',sub:'#139 · 땅 속성',d:'발동하면 힘을 나눠주어 공격이 땅 속성으로 변화한다.',kv:'작업 적성: <span>수작업 6 · 채굴 6 · 운반 4</span>'}};
+const chips=[['금속 곡괭이','T_itemicon_Weapon_Pickaxe_Tier_00.webp'],['목재','T_itemicon_Material_Wood.webp'],['상급 작업대','T_itemicon_Material_Wood.webp'],['아누비스','T_itemicon_Material_Wood.webp']];
+document.getElementById('chips').innerHTML=chips.map(c=>`<a class="chip" data-tip="${c[0]}"><img src="${I}${c[1]}">${c[0]}</a>`).join('');
+document.getElementById('mats').innerHTML='<tr><th></th><th>재료</th><th style="text-align:right">수량</th></tr>'+[['제련 주괴','T_itemicon_Material_IronIngot.webp',10],['목재','T_itemicon_Material_Wood.webp',4]].map(r=>`<tr class="go" data-tip="${TIP[r[0]]?r[0]:'목재'}"><td><img src="${I}${r[1]}">${r[0]}</td><td></td><td style="text-align:right">${r[2]}</td></tr>`).join('');
+const tip=document.getElementById('tip');
+document.addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip]');if(!el){tip.style.display='none';return}
+  const d=TIP[el.dataset.tip];const r=el.getBoundingClientRect();
+  tip.innerHTML=`<div class="t"><span class="ico"><img src="${I}${d.icon}"></span><div><b>${el.dataset.tip}</b><div class="sub">${d.sub}</div></div></div><p>${d.d}</p><div class="kv">${d.kv}</div>`;
+  tip.style.display='block';tip.style.left=Math.min(r.left,innerWidth-300)+'px';tip.style.top=(r.bottom+8)+'px'});
+document.getElementById('sw').onclick=e=>{const v=e.target.dataset.v;if(!v)return;document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b===e.target));draw(v)};
+draw('items');
+</script>
+</body>
+</html>

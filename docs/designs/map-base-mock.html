@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>지도 기반 UI 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--panel:rgba(16,16,16,.78);--line:rgba(255,255,255,.1);--sel:rgba(255,255,255,.08);--hover:rgba(255,255,255,.05);--text:#ececec;--mute:#a3a3a3;--accent:#e2e2e2;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR",sans-serif;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .sw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid #333;padding:6px 12px;border-radius:6px;cursor:pointer}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .sw .sep{width:1px;height:20px;background:#333;margin:0 6px}
+  /* app frame (1280x760) */
+  .app{position:relative;width:1280px;height:760px;border-radius:10px;overflow:hidden;border:1px solid #333;background:#0b141c}
+  .map{position:absolute;inset:0;overflow:hidden}
+  .map img{position:absolute;max-width:none;transition:transform .5s ease;transform-origin:0 0}
+  .map::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,var(--dim,.25));pointer-events:none}
+  .dot{position:absolute;border-radius:50%;background:#ff5a4a;border:1px solid #0008;opacity:.85;width:9px;height:9px;transition:opacity .3s}
+  .night .dot{background:#6aa7ff}
+  .glass{background:rgba(16,16,16,var(--pa,.78));backdrop-filter:blur(var(--bl,14px));-webkit-backdrop-filter:blur(var(--bl,14px));border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  /* rail */
+  .rail{position:absolute;left:12px;top:12px;bottom:12px;width:64px;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px;z-index:5}
+  .rail a{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:var(--mute);cursor:pointer;position:relative}
+  .rail a.on{background:var(--sel);color:var(--text)}
+  .rail a:hover::after{content:attr(data-l);position:absolute;left:52px;background:#000c;padding:2px 8px;border-radius:6px;font-size:12px;white-space:nowrap;color:#fff}
+  .rail svg{width:20px;height:20px;stroke-width:1.75}
+  .rail .sp{flex:1}
+  /* list panel */
+  .list{position:absolute;left:88px;top:12px;bottom:12px;width:340px;display:flex;flex-direction:column;z-index:4}
+  .search{padding:12px;border-bottom:1px solid var(--line)}
+  .search input{width:100%;padding:9px 12px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:14px}
+  .mode{display:flex;gap:4px;margin-top:8px}
+  .mode button{flex:1;height:30px;background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--mute);border-radius:8px;display:grid;place-items:center;cursor:pointer}
+  .mode button.on{background:var(--sel);color:var(--text);border-color:var(--accent)}
+  .tree{flex:1;overflow:auto;padding:8px}
+  .row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;cursor:pointer}
+  .row:hover{background:var(--hover)}.row.sel{background:var(--sel);outline:1px solid var(--accent)}
+  .kids{margin-left:14px;border-left:1px solid var(--line);padding-left:6px}
+  .cnt{margin-left:auto;color:var(--mute);font-size:12px}
+  .ico{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(to top,#3a3a3a,#1c1c1c);overflow:hidden;flex-shrink:0}
+  .ico img{width:100%}.ico[data-r="2"]{background:linear-gradient(to top,#27547c,#17283b)}.ico[data-r="3"]{background:linear-gradient(to top,#5a2f7c,#241532)}
+  .fi{width:28px;height:28px;border-radius:6px;background:var(--sel);display:grid;place-items:center;color:var(--accent);flex-shrink:0}.fi svg{width:16px;height:16px}.fi.p{background:none}.fi img{width:22px}
+  /* detail panel */
+  .detail{position:absolute;right:12px;top:12px;width:400px;max-height:calc(100% - 24px);overflow:auto;padding:16px;z-index:4}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .big{width:76px;height:76px;border-radius:12px;overflow:hidden;border:1px solid var(--line);flex-shrink:0}.big .ico{width:100%;height:100%;border-radius:0}
+  h2{margin:0;font-size:19px}.tag{background:var(--sel);color:var(--mute);border-radius:4px;padding:1px 8px;font-size:12px}
+  .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .box{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
+  .box h3{margin:0 0 8px;font-size:13px;color:var(--accent2)}
+  table{width:100%;border-collapse:collapse}td{padding:5px 6px;border-bottom:1px solid var(--line)}td:first-child{width:36px}.n{text-align:right}
+  .work{display:inline-flex;align-items:center;gap:6px;background:var(--sel);border:1px solid var(--line);border-radius:6px;padding:3px 9px 3px 7px;margin-right:6px}
+  .work img{width:22px}.work b{font-size:19px;font-weight:400;line-height:1}
+  .seg{display:inline-flex}.seg button{background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--mute);padding:3px 12px;cursor:pointer;font-size:12px}
+  .seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;border-left:0}.seg button.on{background:var(--sel);color:var(--text)}
+  .pts{display:flex;gap:8px;margin-top:10px}.pt{flex:1;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}.pt b{display:block;font-size:20px}.pt span{font-size:11px;color:var(--mute)}
+  .close{position:absolute;right:10px;top:10px;background:none;border:0;color:var(--mute);cursor:pointer}
+  /* map controls */
+  .mctl{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;z-index:3}
+  .mctl button{width:36px;height:36px;border-radius:10px;color:var(--text);cursor:pointer;display:grid;place-items:center;background:rgba(16,16,16,var(--pa,.78));border:1px solid var(--line);backdrop-filter:blur(var(--bl,14px))}
+  .chipbar{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:6px 12px;font-size:12px;z-index:3;display:flex;gap:10px;align-items:center}
+  .note{width:1280px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="sw" id="sw">
+  <b>화면:</b>
+  <button data-s="map" class="on">지도만</button>
+  <button data-s="pal">팰 선택 (분포 표시)</button>
+  <button data-s="item">아이템</button>
+  <button data-s="struct">구조물</button>
+  <span class="sep"></span><b>패널 투명도:</b>
+  <button data-a=".4">40%</button><button data-a=".6">60%</button><button data-a=".78" class="on">78%</button><button data-a=".92">92%</button><button data-a="1">100%</button>
+  <span class="sep"></span><b>블러:</b>
+  <button data-b="0">없음</button><button data-b="6">약</button><button data-b="14" class="on">중</button><button data-b="28">강</button>
+  <span class="sep"></span><span style="color:#9a9a9a;font-size:12px">지도 어둡기: 밝게(확정)</span>
+</div>
+<div class="app" id="app"></div>
+<div class="note"><b>바뀌는 것</b>: 지금의 "사이드바 + 목록 + 상세" 3단 고정 레이아웃 → <b>지도가 항상 전체 배경</b>이고 그 위에 반투명(블러) 카드 3개가 떠 있음. ① 왼쪽 <b>아이콘 레일</b>(메뉴, 호버하면 이름) ② 그 옆 <b>목록 패널</b>(검색/보기 전환/트리 그대로) ③ 오른쪽 <b>상세 패널</b>(항목 선택 시에만 나타남, ✕로 닫기). 패널 사이·바깥은 지도가 그대로 보이고 드래그/휠로 조작됨.<br>
+• <b>팰을 선택하면</b> 지도가 그 팰의 서식 범위로 자동 이동/확대되고 낮/밤 분포 점이 배경 지도에 바로 찍힘(상세 안의 작은 지도는 불필요해져서 제거, 낮/밤 토글만 상세에).<br>
+• 지도 메뉴는 따로 없어지고, 레일의 <b>지도 아이콘</b>은 "패널 모두 숨기기"(지도만 보기) 토글이 됨.<br>
+<b>그대로인 것</b>: 항목 데이터와 기능 전부(검색, 계층/목록/그리드, 재료 링크, 툴팁, 라우팅 주소). 색/폰트/아이콘.<br>
+<b>사용자가 정할 것</b>: ① 패널 투명도/블러 기본값(위 버튼으로 비교) ② 아이템/구조물에서도 지도를 배경으로 둘지(지금 시안, 지도 밝기는 '밝게'로 확정됨 — 글자 가독성은 패널 투명도/블러로 확보) ③ 상세 패널이 오른쪽에 뜨는 위치(대안: 목록 바로 옆) ④ 모바일은 기존 하단탭 방식 유지(지도 위 바텀시트로 바꿀지는 별도).</div>
+<script>
+const I='/icons/';
+const W=1280,H=760;
+let S={s:'map',pa:.78,bl:14,dim:.1,mm:'d',spawn:null};
+const RAIL=[['map','지도 숨기기/보이기'],['backpack','아이템'],['paw-print','팰'],['hammer','구조물']];
+function railHtml(on){return `<div class="rail glass">${RAIL.map(([ic,l],i)=>`<a class="${on===i?'on':''}" data-l="${l}"><i data-lucide="${ic}"></i></a>`).join('')}<div class="sp"></div><a data-l="설정"><i data-lucide="settings"></i></a></div>`}
+const modeBtns=`<div class="mode"><button class="on"><i data-lucide="list-tree" width="15"></i></button><button><i data-lucide="list" width="15"></i></button><button><i data-lucide="layout-grid" width="15"></i></button></div>`;
+const EL=n=>`https://cdn.paldb.cc/image/Pal/Texture/UI/InGame/T_Icon_element_s_0${n}.webp`;
+function listHtml(kind){
+  const body={
+   pal:`<div class="row"><span class="fi"><i data-lucide="library"></i></span><b>전체 팰</b><span class="cnt">299마리</span></div><div class="kids"><div class="row"><span class="fi p"><img src="${EL(7)}"></span>땅 속성<span class="cnt">44마리</span></div><div class="kids"><div class="row sel"><span class="ico"><img src="${I}T_Anubis_icon_normal.webp"></span>아누비스<span class="cnt">#139</span></div></div><div class="row"><span class="fi p"><img src="${EL(1)}"></span>화염 속성<span class="cnt">44마리</span></div><div class="row"><span class="fi p"><img src="${EL(2)}"></span>물 속성<span class="cnt">48마리</span></div></div>`,
+   item:`<div class="row"><span class="fi"><i data-lucide="library"></i></span><b>전체</b><span class="cnt">1873개</span></div><div class="kids"><div class="row"><span class="fi"><i data-lucide="sword"></i></span>무기<span class="cnt">132개</span></div><div class="kids"><div class="row sel"><span class="ico" data-r="2"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span>금속 곡괭이</div><div class="row"><span class="ico"><img src="${I}T_itemicon_Weapon_Axe_Tier_00.webp"></span>돌 도끼</div></div><div class="row"><span class="fi"><i data-lucide="shield"></i></span>방어구<span class="cnt">109개</span></div><div class="row"><span class="fi"><i data-lucide="boxes"></i></span>소재<span class="cnt">189개</span></div></div>`,
+   struct:`<div class="row"><span class="fi"><i data-lucide="library"></i></span><b>전체 구조물</b><span class="cnt">496개</span></div><div class="kids"><div class="row"><span class="fi"><i data-lucide="factory"></i></span>생산<span class="cnt">45개</span></div><div class="kids"><div class="row sel"><span class="ico"><img src="${I}T_icon_buildObject_Factory_Hard_01.webp"></span>상급 작업대<span class="cnt">Lv.11</span></div></div><div class="row"><span class="fi"><i data-lucide="brick-wall"></i></span>건축<span class="cnt">139개</span></div></div>`}[kind];
+  const ph={pal:'팰 검색 (예: 도로롱)',item:'아이템 검색 (예: 금속)',struct:'구조물 검색 (예: 작업대)'}[kind];
+  return `<div class="list glass"><div class="search"><input placeholder="${ph}">${modeBtns}</div><div class="tree">${body}</div></div>`}
+function detailHtml(kind){
+  const close='<button class="close">✕</button>';
+  if(kind==='pal') return `<div class="detail glass">${close}<div class="head"><div class="big"><span class="ico"><img src="${I}T_Anubis_icon_normal.webp"></span></div><div><h2>아누비스 <span style="color:var(--mute);font-size:13px;font-weight:400">#139</span></h2><div class="tags"><span class="tag">땅 속성</span></div></div></div>
+   <div class="box"><h3>작업 적성</h3><span class="work"><img src="${I}T_icon_palwork_04.webp"><b>6</b></span><span class="work"><img src="${I}T_icon_palwork_07.webp"><b>6</b></span><span class="work"><img src="${I}T_icon_palwork_11.webp"><b>4</b></span></div>
+   <div class="box"><h3>서식 분포 (지도에 표시 중)</h3><div class="seg"><button class="${S.mm==='d'?'on':''}" data-mm="d">낮</button><button class="${S.mm==='n'?'on':''}" data-mm="n">밤</button></div> <span style="color:var(--mute);font-size:12px;margin-left:8px">${S.spawn?S.spawn[S.mm].length:0}곳 · 지도가 자동으로 맞춰짐</span></div>
+   <div class="box"><h3>파트너 스킬: 사막의 수호신</h3><div style="font-size:12px;color:#c9c9c9">발동하면 힘을 나눠주어 공격이 땅 속성으로 변화한다.</div></div>`;
+  if(kind==='item') return `<div class="detail glass">${close}<div class="head"><div class="big"><span class="ico" data-r="2"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span></div><div><h2>금속 곡괭이</h2><div class="tags"><span class="tag" style="background:#2fb4ff;color:#04101a;font-weight:700">희귀</span><span class="tag">무기 › 근접 무기</span><span class="tag">상급 작업대 ↗</span></div></div></div>
+   <div class="box"><h3>제작 재료 (1개당)</h3><table><tr><td><span class="ico"><img src="${I}T_itemicon_Material_IronIngot.webp"></span></td><td>제련 주괴</td><td class="n">10</td></tr><tr><td><span class="ico"><img src="${I}T_itemicon_Material_Wood.webp"></span></td><td>나무 판자</td><td class="n">4</td></tr></table></div>
+   <div class="box"><h3>총 필요 재료</h3><table><tr><td><span class="ico"><img src="${I}T_itemicon_Material_IronIngot.webp"></span></td><td>금속 광석</td><td class="n">20</td></tr></table></div>`;
+  return `<div class="detail glass">${close}<div class="head"><div class="big"><span class="ico"><img src="${I}T_icon_buildObject_Factory_Hard_01.webp"></span></div><div><h2>상급 작업대</h2><div class="tags"><span class="tag">생산</span></div></div></div>
+   <div class="pts"><div class="pt"><b>Lv.11</b><span>요구 기술 레벨</span></div><div class="pt"><b>3</b><span>기술 포인트</span></div><div class="pt"><b>0</b><span>고대 기술</span></div></div>
+   <div class="box"><h3>건설 재료</h3><table><tr><td><span class="ico"><img src="${I}T_itemicon_Material_Wood.webp"></span></td><td>목재</td><td class="n">20</td></tr></table></div>`;
+}
+function mapHtml(){
+  // map image 4096px scaled so the whole map covers the frame; pal mode zooms to the spawn bounds
+  let sc=Math.max(W,H)/4096, tx=(W-4096*sc)/2, ty=(H-4096*sc)/2, dots='';
+  if(S.s==='pal'&&S.spawn){const p=S.spawn[S.mm];const xs=p.map(a=>a[0]),ys=p.map(a=>a[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+    sc=Math.min((W-560)/(x1-x0+300),(H-160)/(y1-y0+300),1.2);tx=88+340+((W-88-340-400)-(x1-x0)*sc)/2-x0*sc;ty=(H-(y1-y0)*sc)/2-y0*sc;
+    dots=p.map(([x,y])=>`<span class="dot" style="left:${x-5/sc}px;top:${y-5/sc}px;width:${10/sc}px;height:${10/sc}px"></span>`).join('')}
+  return `<div class="map ${S.mm==='n'?'night':''}"><img src="/map/palpagos.webp" width="4096" height="4096" style="transform:translate(${tx}px,${ty}px) scale(${sc})"><div style="position:absolute;left:0;top:0;width:4096px;height:4096px;transform:translate(${tx}px,${ty}px) scale(${sc});transform-origin:0 0;transition:transform .5s ease">${dots}</div></div>`}
+function render(){
+  const k=S.s, rail=k==='map'?0:k==='item'?1:k==='pal'?2:3;
+  const app=document.getElementById('app');
+  app.style.setProperty('--pa',S.pa);app.style.setProperty('--dim',S.dim);app.style.setProperty('--bl',S.bl+'px');
+  app.innerHTML=mapHtml()+railHtml(rail)+(k==='map'?'<div class="chipbar glass"><i data-lucide="map-pin" width="14"></i>지도만 보기 · 왼쪽 아이콘으로 패널 열기</div>':listHtml(k)+detailHtml(k))+`<div class="mctl"><button><i data-lucide="plus"></i></button><button><i data-lucide="minus"></i></button><button><i data-lucide="locate-fixed"></i></button></div>`;
+  lucide.createIcons();
+  app.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{S.mm=b.dataset.mm;render()});
+}
+document.getElementById('sw').onclick=e=>{const d=e.target.dataset;
+  if(d.s){S.s=d.s;document.querySelectorAll('#sw [data-s]').forEach(b=>b.classList.toggle('on',b===e.target))}
+  if(d.a){S.pa=+d.a;document.querySelectorAll('#sw [data-a]').forEach(b=>b.classList.toggle('on',b===e.target))}
+  if(d.b!==undefined){S.bl=+d.b;document.querySelectorAll('#sw [data-b]').forEach(b=>b.classList.toggle('on',b===e.target))}
+  render()};
+fetch('/data/spawns/Anubis.json').then(r=>r.json()).then(j=>{S.spawn=j;render()}).catch(()=>{});
+render();
+</script>
+</body>
+</html>

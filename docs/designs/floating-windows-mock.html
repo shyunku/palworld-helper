@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>떠 있는 창 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--pa:.4;--bl:14px;--line:rgba(255,255,255,.12);--sel:rgba(255,255,255,.11);--hover:rgba(255,255,255,.07);--text:#ececec;--mute:#a3a3a3;--accent:#e2e2e2;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR",sans-serif;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .app{position:relative;width:1280px;height:760px;border-radius:10px;overflow:hidden;border:1px solid #333;background:#0b141c;user-select:none}
+  .map{position:absolute;inset:0}.map img{position:absolute;max-width:none;left:0;top:0;transform-origin:0 0}
+  .map::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.1);pointer-events:none}
+  .dot{position:absolute;border-radius:50%;background:#ff5a4a;border:1px solid #0008;opacity:.85}
+  .glass{background:rgba(16,16,16,var(--pa));backdrop-filter:blur(var(--bl));-webkit-backdrop-filter:blur(var(--bl));border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);text-shadow:0 1px 2px rgba(0,0,0,.55)}
+  .rail{position:absolute;left:12px;top:12px;width:64px;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px;z-index:9999}
+  .rail a{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:var(--mute);cursor:pointer;position:relative}
+  .rail a.on{background:var(--sel);color:var(--text)}
+  .rail a:hover::after{content:attr(data-l);position:absolute;left:54px;background:rgba(0,0,0,.8);padding:2px 10px;border-radius:6px;font-size:12px;white-space:nowrap;color:#fff}
+  .rail hr{width:32px;border:0;border-top:1px solid var(--line);margin:4px 0}
+  .rail svg{width:20px;height:20px;stroke-width:1.75}
+  .win{position:absolute;display:flex;flex-direction:column;overflow:hidden;resize:both;min-width:280px;min-height:160px}
+  .win.focus{border-color:rgba(255,255,255,.28)}
+  .tb{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border-bottom:1px solid var(--line);cursor:move;flex-shrink:0}
+  .tb b{font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tb svg{width:16px;height:16px;color:var(--mute)}
+  .tb button{background:none;border:0;color:var(--mute);cursor:pointer;width:26px;height:26px;border-radius:7px;display:grid;place-items:center}
+  .tb button:hover{background:var(--hover);color:var(--text)}
+  .wb{flex:1;overflow:auto;padding:10px}
+  .search input{width:100%;padding:8px 12px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:14px;margin-bottom:8px}
+  .row{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;cursor:pointer}.row:hover{background:var(--hover)}
+  .cnt{margin-left:auto;color:var(--mute);font-size:12px}
+  .ico{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(to top,#3a3a3a,#1c1c1c);overflow:hidden;flex-shrink:0}.ico img{width:100%}
+  .ico[data-r="2"]{background:linear-gradient(to top,#27547c,#17283b)}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+  .big{width:72px;height:72px;border-radius:12px;overflow:hidden;border:1px solid var(--line);flex-shrink:0}.big .ico{width:100%;height:100%;border-radius:0}
+  h2{margin:0;font-size:18px}.tag{background:var(--sel);color:var(--mute);border-radius:4px;padding:1px 8px;font-size:12px}
+  .box{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}.box h3{margin:0 0 6px;font-size:13px;color:var(--accent2)}
+  .work{display:inline-flex;align-items:center;gap:6px;background:var(--sel);border:1px solid var(--line);border-radius:6px;padding:3px 9px 3px 7px;margin-right:6px}.work img{width:22px}.work b{font-size:17px;font-weight:400;line-height:1}
+  .seg button{background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--mute);padding:2px 12px;cursor:pointer;font-size:12px}.seg button.on{background:var(--sel);color:var(--text)}
+  .note{width:1280px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="note"><b>바뀌는 것</b>: 전체 UI가 지도 하나로 고정되고, 아이템/팰/구조물은 지도 위에 떠 있는 <b>창</b>이 됨. 레이아웃이 메뉴별로 바뀌지 않고 지도도 건드리지 않음.<br>
+• <b>레일 버튼</b> = 창 열기/닫기 토글(켜져 있으면 강조). 여러 창을 동시에 띄울 수 있음. 맨 아래 <b>"모든 창 숨기기"</b> 버튼 하나로 지도만 남김(지도 메뉴/`/map` 주소는 없어짐).<br>
+• <b>창 조작</b>: 제목줄을 드래그해서 이동, 오른쪽 아래 모서리를 드래그해서 크기 조절, 클릭하면 맨 앞으로. 위치/크기/열림 상태는 기억함(새로고침해도 유지).<br>
+• <b>상세는 별도 창</b>: 목록 창에서 항목을 누르면 상세 창이 새로 뜸(같은 항목은 기존 창을 앞으로). 여러 개를 띄워서 비교 가능. 상세 창 ✕로 닫기.<br>
+• <b>팰 상세 창이 맨 앞이면</b> 그 팰의 서식 분포가 지도에 찍히고 해당 영역으로 이동(메뉴를 바꾸거나 다른 창을 열어도 지도는 그대로, 팰 상세 창을 새로 열 때만 이동).<br>
+• 패널 투명도 40% / 블러 14px, 지도 밝게는 그대로. <b>시안 체험</b>: 왼쪽 레일 버튼을 눌러 창을 열고, 목록의 항목을 눌러 상세를 띄우고, 제목줄을 끌어보세요.<br>
+<b>그대로인 것</b>: 목록(검색/계층·목록·그리드/폴더 아이콘), 상세 내용, 툴팁, 링크 이동(링크를 누르면 해당 항목 상세 창이 열림). 모바일은 지금처럼 전체 화면 방식 유지(창 방식은 PC만).<br>
+<b>사용자가 정할 것</b>: ① 창 최대 개수(시안은 제한 없음, 제안: 상세 창 최대 4개, 넘으면 가장 오래된 것부터 닫음) ② 처음 접속했을 때 기본으로 열려 있을 창(제안: 지도만) ③ 창 끝을 화면 가장자리에 붙이는 스냅 기능이 필요한지.</div>
+<script>
+const I='/icons/', app=document.getElementById('app');
+let z=10, wins=[], spawn=null;
+const RAIL=[['backpack','아이템','item'],['paw-print','팰','pal'],['hammer','구조물','struct']];
+const LIST={
+ item:`<div class="row"><b>전체</b><span class="cnt">1873개</span></div><div class="row" data-open="item:금속 곡괭이"><span class="ico" data-r="2"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span>금속 곡괭이</div><div class="row" data-open="item:돌 도끼"><span class="ico"><img src="${I}T_itemicon_Weapon_Axe_Tier_00.webp"></span>돌 도끼</div><div class="row" data-open="item:목재"><span class="ico"><img src="${I}T_itemicon_Material_Wood.webp"></span>목재</div>`,
+ pal:`<div class="row"><b>전체 팰</b><span class="cnt">299마리</span></div><div class="row" data-open="pal:아누비스"><span class="ico"><img src="${I}T_Anubis_icon_normal.webp"></span>아누비스<span class="cnt">#139</span></div><div class="row" data-open="pal:도로롱"><span class="ico"><img src="${I}T_SheepBall_icon_normal.webp"></span>도로롱<span class="cnt">#1</span></div>`,
+ struct:`<div class="row"><b>전체 구조물</b><span class="cnt">496개</span></div><div class="row" data-open="struct:상급 작업대"><span class="ico"><img src="${I}T_icon_buildObject_Factory_Hard_01.webp"></span>상급 작업대<span class="cnt">Lv.11</span></div>`};
+const TITLE={item:['backpack','아이템'],pal:['paw-print','팰'],struct:['hammer','구조물']};
+function detail(kind,name){
+  if(kind==='pal') return `<div class="head"><div class="big"><span class="ico"><img src="${I}${name==='아누비스'?'T_Anubis_icon_normal.webp':'T_SheepBall_icon_normal.webp'}"></span></div><div><h2>${name}</h2><span class="tag">${name==='아누비스'?'땅 속성':'무속성'}</span></div></div>
+   <div class="box"><h3>작업 적성</h3><span class="work"><img src="${I}T_icon_palwork_04.webp"><b>6</b></span><span class="work"><img src="${I}T_icon_palwork_07.webp"><b>6</b></span></div>
+   <div class="box"><h3>서식 분포 (지도에 표시 중)</h3><span class="seg"><button class="on">낮</button><button>밤</button></span></div>`;
+  if(kind==='item') return `<div class="head"><div class="big"><span class="ico" data-r="2"><img src="${I}T_itemicon_Weapon_Pickaxe_Tier_00.webp"></span></div><div><h2>${name}</h2><span class="tag">희귀</span></div></div><div class="box"><h3>제작 재료</h3>제련 주괴 10 · 나무 판자 4</div>`;
+  return `<div class="head"><div class="big"><span class="ico"><img src="${I}T_icon_buildObject_Factory_Hard_01.webp"></span></div><div><h2>${name}</h2><span class="tag">생산</span></div></div><div class="box"><h3>기술</h3>Lv.11 · 기술 포인트 3</div>`}
+function open(id,title,icon,html,x,y,w,h){
+  const ex=wins.find(a=>a.id===id); if(ex){front(ex);return}
+  const el=document.createElement('div');el.className='win glass';el.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+  el.innerHTML=`<div class="tb"><i data-lucide="${icon}"></i><b>${title}</b><button><i data-lucide="x"></i></button></div><div class="wb">${html}</div>`;
+  app.appendChild(el);const o={id,el};wins.push(o);front(o);lucide.createIcons();
+  el.addEventListener('mousedown',()=>front(o));
+  el.querySelector('.tb button').onclick=e=>{e.stopPropagation();close(o)};
+  el.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>{const [k,n]=r.dataset.open.split(':');open(k+':'+n,n,TITLE[k][0],detail(k,n),380+wins.length*28,70+wins.length*24,360,330)});
+  const tb=el.querySelector('.tb');tb.onmousedown=e=>{if(e.target.closest('button'))return;const r=el.getBoundingClientRect(),a=app.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;
+    const mv=ev=>{el.style.left=Math.max(0,Math.min(ev.clientX-a.left-dx,a.width-80))+'px';el.style.top=Math.max(0,Math.min(ev.clientY-a.top-dy,a.height-40))+'px'};
+    const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up)};addEventListener('mousemove',mv);addEventListener('mouseup',up)};
+  sync();
+}
+function front(o){o.el.style.zIndex=++z;wins.forEach(a=>a.el.classList.toggle('focus',a===o));sync()}
+function close(o){o.el.remove();wins=wins.filter(a=>a!==o);sync()}
+function sync(){
+  RAIL.forEach(([,,k])=>document.querySelector(`[data-k="${k}"]`)?.classList.toggle('on',wins.some(w=>w.id==='list:'+k)));
+  // map: focus follows the front-most pal detail window
+  const top=[...wins].filter(w=>w.id.startsWith('pal:')).sort((a,b)=>b.el.style.zIndex-a.el.style.zIndex)[0];
+  draw(top&&top.id==='pal:아누비스'?spawn:null);
+}
+function draw(sp){
+  let sc=Math.min(1280,760)/4096*1.1,tx=300,ty=0,dots='';
+  if(sp){const p=sp.d,xs=p.map(a=>a[0]),ys=p.map(a=>a[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+    sc=Math.min(500/(x1-x0+300),420/(y1-y0+300),1.2);tx=760-((x0+x1)/2)*sc;ty=380-((y0+y1)/2)*sc;
+    dots=p.map(([x,y])=>`<span class="dot" style="left:${x-5/sc}px;top:${y-5/sc}px;width:${10/sc}px;height:${10/sc}px"></span>`).join('')}
+  let m=app.querySelector('.map');if(!m){m=document.createElement('div');m.className='map';m.innerHTML='<img src="/map/palpagos.webp" width="4096" height="4096" style="transition:transform .5s"><div class="dots" style="position:absolute;left:0;top:0;width:4096px;height:4096px;transform-origin:0 0;transition:transform .5s"></div>';app.prepend(m)}
+  const t=`translate(${tx}px,${ty}px) scale(${sc})`;m.querySelector('img').style.transform=t;const d=m.querySelector('.dots');d.style.transform=t;d.innerHTML=dots}
+const rail=document.createElement('div');rail.className='rail glass';
+rail.innerHTML=RAIL.map(([ic,l,k])=>`<a data-l="${l}" data-k="${k}"><i data-lucide="${ic}"></i></a>`).join('')+'<hr><a data-l="모든 창 숨기기" data-hide><i data-lucide="eye-off"></i></a>';
+app.appendChild(rail);
+rail.onclick=e=>{const a=e.target.closest('a');if(!a)return;
+  if(a.dataset.hide!==undefined){[...wins].forEach(close);return}
+  const k=a.dataset.k,id='list:'+k,ex=wins.find(w=>w.id===id);
+  if(ex){close(ex)}else open(id,TITLE[k][1],TITLE[k][0],`<div class="search"><input placeholder="${TITLE[k][1]} 검색"></div>`+LIST[k],92+wins.length*30,12+wins.length*20,340,520)};
+fetch('/data/spawns/Anubis.json').then(r=>r.json()).then(j=>{spawn=j;sync()}).catch(()=>{});
+draw(null);lucide.createIcons();
+</script>
+</body>
+</html>

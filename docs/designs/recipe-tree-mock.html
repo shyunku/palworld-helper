@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>조합식 트리 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+  :root{--line:rgba(255,255,255,.12);--sel:rgba(255,255,255,.11);--hover:rgba(255,255,255,.07);--text:#ececec;--mute:#a3a3a3;--accent2:#ffb84c;--gold:#ffd23f}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR",sans-serif;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .sw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid #333;padding:6px 12px;border-radius:6px;cursor:pointer}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .stage{position:relative;width:1100px;height:760px;border-radius:10px;overflow:hidden;border:1px solid #333;background:#0b141c url(/map/palpagos.webp) center/cover}
+  .win{position:absolute;right:20px;top:14px;bottom:14px;width:430px;overflow:auto;padding:18px;background:rgba(16,16,16,.4);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);text-shadow:0 1px 2px rgba(0,0,0,.55)}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+  .big{width:76px;height:76px;border-radius:12px;overflow:hidden;border:1px solid var(--line);flex-shrink:0}.big .ico{width:100%;height:100%;border-radius:0}
+  h2{margin:0;font-size:19px}.tag{background:var(--sel);color:var(--mute);border-radius:4px;padding:1px 8px;font-size:12px}
+  .rn{background:#f0f0f0;color:#04101a;font-weight:700;border-radius:4px;padding:1px 8px;font-size:12px}
+  .box{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px}
+  .bh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .bh h3{margin:0;font-size:13px;color:var(--accent2);flex:1}
+  .bh button{background:rgba(0,0,0,.3);border:1px solid var(--line);color:var(--mute);border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer}
+  .ico{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:linear-gradient(to top,#3a3a3a,#1c1c1c);overflow:hidden;flex-shrink:0}.ico img{width:100%}
+  .qty{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}.qty input{width:64px;padding:4px 8px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:6px;color:var(--text)}
+  /* tree: name | ×qty | total(gold) — columns align at every depth */
+  .cols{display:flex;gap:0;color:var(--mute);font-size:11px;padding:0 6px 4px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .cols span:first-child{flex:1}.cols span{width:60px;text-align:right}.cols span:first-child{width:auto;text-align:left}
+  .n{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:8px;min-height:34px;cursor:pointer}
+  .n:hover{background:var(--hover)}
+  .n .ar{width:14px;color:var(--mute);font-size:10px;text-align:center;flex-shrink:0}
+  .n .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .n .q{width:60px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mute);flex-shrink:0}
+  .n .t{width:60px;text-align:right;font-variant-numeric:tabular-nums;color:var(--gold);flex-shrink:0}
+  .badge{font-size:11px;color:var(--mute);background:var(--sel);border-radius:4px;padding:0 6px;margin-left:6px}
+  .k{margin-left:12px;border-left:1px solid var(--line);padding-left:6px}
+  .note{width:1100px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="sw" id="sw"><b>예시:</b>
+  <button data-e="item" class="on">아이템 (금속 탐지기)</button><button data-e="struct">구조물 (상급 작업대)</button></div>
+<div class="stage"><div class="win" id="win"></div></div>
+<div class="note"><b>바뀌는 것</b> (이전 시안 대비)<br>
+• <b>현재 아이템(최상위)은 트리에서 뺌</b>: 헤더에 이미 나와 있으니 트리는 바로 아래 재료들부터 시작.<br>
+• <b>처음엔 모두 접힌 상태</b>: 1단계 재료만 보이고, ▶를 누르면 하위 재료가 펼쳐짐.<br>
+• <b>"모두 펼치기 / 모두 접기"는 "조합식" 제목과 같은 줄 맨 오른쪽</b>.<br>
+• <b>수량 열</b>: 이름 | ×수량 | <b style="color:#ffd23f">노란 숫자 = 합계</b>(만들 개수 반영, "합계" 글자 없음). 두 숫자 열은 깊이와 상관없이 오른쪽으로 <b>열맞춤</b>(위에 작은 열 머리글 "×수량 / 총").<br>
+• <b>대체되는 것</b>: 아이템의 "제작 재료(1개당)"+"총 필요 재료(전부 풀어서)" 두 카드, 그리고 구조물의 "건설 재료" 카드를 이 <b>조합식 카드 하나</b>로 교체. "만들 개수" 입력은 조합식 카드 안에 유지.<br>
+<b>그대로인 것</b>: 헤더, 설명, 기술/요구 적성/제작 가능 아이템 등 나머지 카드, 링크/툴팁.<br>
+<b>사용자가 정할 것</b>: 열 머리글(×수량 / 총)을 둘지(지금 시안) 없앨지. 합계 숫자 색은 노랑(#ffd23f).</div>
+<script>
+let D=null,by={},S={e:'item',mult:1};
+const I='/icons/',open=new Set();   // keys of expanded nodes (default: none = all collapsed)
+fetch('/data/items.json').then(r=>r.json()).then(j=>{D=j;by=Object.fromEntries(j.map(i=>[i.id,i]));render()});
+const STRUCT={name:'상급 작업대',icon:'T_icon_buildObject_Factory_Hard_01.webp',mats:[['Refined_Ingot',8],['Wood',20],['Nail',10]]};
+function node(id,qty,parentTotal,path){
+  const it=by[id];if(!it)return '';
+  const kids=it.recipe||[],key=path+'/'+id,isOpen=open.has(key),tot=qty*parentTotal;
+  return `<div><div class="n" data-k="${key}"><span class="ar">${kids.length?(isOpen?'▼':'▶'):''}</span><span class="ico"><img src="${I}${it.icon}"></span><span class="nm">${it.name}${kids.length&&it.bench?`<span class="badge">${it.bench[0]}</span>`:''}</span><span class="q">×${qty}</span><span class="t">${tot}</span></div>
+   ${kids.length&&isOpen?`<div class="k">${kids.map(m=>node(m.id,m.qty,tot,key)).join('')}</div>`:''}</div>`}
+function allKeys(id,path,out){const it=by[id];if(!it)return;const key=path+'/'+id;if(it.recipe){out.push(key);it.recipe.forEach(m=>allKeys(m.id,key,out))}}
+function render(){
+  if(!D)return;
+  document.querySelectorAll('#sw [data-e]').forEach(b=>b.classList.toggle('on',b.dataset.e===S.e));
+  let head,top;
+  if(S.e==='item'){const it=D.find(i=>i.name==='금속 탐지기');
+    head=`<div class="head"><div class="big"><span class="ico"><img src="${I}${it.icon}"></span></div><div><h2>${it.name}</h2><span class="rn">일반</span> <span class="tag">무기 › 금속 탐지기</span></div></div>`;
+    top=it.recipe.map(m=>[m.id,m.qty]);
+  }else{head=`<div class="head"><div class="big"><span class="ico"><img src="${I}${STRUCT.icon}"></span></div><div><h2>${STRUCT.name}</h2><span class="tag">생산</span></div></div>`;top=STRUCT.mats}
+  win.innerHTML=head+`<div class="box"><div class="bh"><h3>조합식</h3><button id="ea">모두 펼치기</button><button id="ca">모두 접기</button></div>
+    <div class="qty">만들 개수 <input type="number" min="1" value="${S.mult}" id="m"> 개</div>
+    <div class="cols"><span>재료</span><span>×수량</span><span>총</span></div>
+    ${top.map(([id,q])=>node(id,q,S.mult,'r')).join('')}</div>`;
+  win.querySelectorAll('.n[data-k]').forEach(n=>n.onclick=()=>{const k=n.dataset.k;open.has(k)?open.delete(k):open.add(k);render()});
+  m.oninput=e=>{S.mult=Math.max(1,+e.target.value||1);render();document.getElementById('m').focus()};
+  ea.onclick=()=>{const out=[];top.forEach(([id])=>allKeys(id,'r',out));out.forEach(k=>open.add(k));render()};
+  ca.onclick=()=>{open.clear();render()};
+}
+sw.onclick=e=>{if(e.target.dataset.e){S.e=e.target.dataset.e;open.clear();render()}};
+</script>
+</body>
+</html>
