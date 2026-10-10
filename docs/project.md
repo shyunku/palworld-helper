@@ -4,7 +4,7 @@
 
 ## 기술 스택
 - Vite + React + TypeScript, pnpm
-- UI: lucide-react 아이콘, 폰트 Noto Sans KR(@fontsource로 번들, 외부 CDN 없음). 팰월드 게임 폰트는 비공개/저작물이라 미사용.
+- UI: lucide-react 아이콘, 폰트 Oxanium(전역, @fontsource로 번들) + 한글은 Noto Sans KR로 대체(Oxanium에 한글 글리프 없음), 외부 CDN 없음. 팰월드 게임 폰트는 비공개/저작물이라 미사용.
 - 정적 데이터: `public/data/items.json`, `public/icons/*.webp`, `public/map/palpagos.webp`
 
 ## 기능

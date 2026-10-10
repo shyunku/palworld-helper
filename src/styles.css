@@ -1,7 +1,8 @@
 :root{--pa:.4;--bl:14px;--bg:#0c0c0c;--panel:rgba(0,0,0,.28);--line:rgba(255,255,255,.12);--hover:rgba(255,255,255,.07);--sel:rgba(255,255,255,.11);--text:#ececec;--mute:#9a9a9a;--accent:#d9d9d9;--accent2:#ffb84c}
 *{box-sizing:border-box}
 html,body,#root{height:100%;margin:0}
-body{background:#050505;color:var(--text);font:14px/1.5 "Noto Sans KR","Malgun Gothic",sans-serif}
+body{background:#050505;color:var(--text);font:14px/1.5 "Oxanium","Noto Sans KR","Malgun Gothic",sans-serif}
+button,input,select,textarea{font-family:inherit}
 .app{position:relative;height:100%;overflow:hidden}
 
 /* floating glass panels over the map */
