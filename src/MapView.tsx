@@ -49,8 +49,18 @@ export function boundsOf(points: MapPoint[]): Focus | null {
   return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }
 }
 
+export interface Highlight {
+  x: number
+  y: number
+  icon: string
+  round?: boolean
+  label: string
+}
+
 interface Props {
   points?: MapPoint[]
+  /** the place picked from the 장소 window / search: pulsing ring + label */
+  highlight?: Highlight | null
   markers?: MapMarker[]
   /** fit the view to this rectangle (map pixels); null = show the whole map */
   focus?: Focus | null
@@ -59,7 +69,7 @@ interface Props {
 }
 
 /** Full-bleed, pannable/zoomable map used as the app background. */
-export default function MapView({ points = [], markers = [], focus = null, insets = { l: 0, r: 0, t: 0, b: 0 }, note }: Props) {
+export default function MapView({ points = [], markers = [], highlight = null, focus = null, insets = { l: 0, r: 0, t: 0, b: 0 }, note }: Props) {
   const box = useRef<HTMLDivElement>(null)
   const drag = useRef<{ px: number; py: number; vx: number; vy: number } | null>(null)
   const ptrs = useRef(new Map<number, { x: number; y: number }>())
@@ -215,6 +225,13 @@ export default function MapView({ points = [], markers = [], focus = null, inset
             style={{ left: m.x - m.size / v.s / 2, top: m.y - m.size / v.s / 2, width: m.size / v.s, height: m.size / v.s }}
           />
         ))}
+        {highlight && (
+          <div className="hlmark" style={{ left: highlight.x, top: highlight.y, transform: `scale(${1 / v.s})` }}>
+            <span className="hl-ring" />
+            <img className={highlight.round ? 'round' : ''} src={iconSrc(highlight.icon)} alt="" />
+            <span className="hl-label">{highlight.label}</span>
+          </div>
+        )}
         {points.map((p, i) => (
           <span key={i} className={`mdot ${p.cls ?? ''}`} style={{ left: p.x - dot / 2, top: p.y - dot / 2, width: dot, height: dot }} />
         ))}

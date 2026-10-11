@@ -161,8 +161,12 @@ a.tag.link:hover{border-color:var(--accent)}
 .rail{z-index:9000}
 .rail hr{width:26px;border:0;border-top:1px solid var(--line);margin:2px 0}
 .win{position:absolute;display:flex;flex-direction:column;overflow:hidden;min-width:300px}
-.win{transition:opacity .15s}
-.win:not(.focus){opacity:.3}
+.win{transition:background-color .15s}
+/* Not-focused windows look 30% as strong. Dimming the window itself with `opacity` makes the
+   window a backdrop root and the focused window's blur then stops covering it, so the window
+   keeps opacity 1 and only its background and contents are dimmed. */
+.win:not(.focus){background:rgba(16,16,16,calc(var(--pa) * .3));backdrop-filter:blur(calc(var(--bl) * .3));-webkit-backdrop-filter:blur(calc(var(--bl) * .3));box-shadow:none}
+.win:not(.focus)>.wtitle,.win:not(.focus)>.wbody{opacity:.3;transition:opacity .15s}
 .win.focus{border-color:rgba(255,255,255,.28)}
 .wtitle{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;border-bottom:1px solid var(--line);cursor:move;flex-shrink:0;user-select:none;touch-action:none}
 .wtitle b{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -238,6 +242,40 @@ a.tag.link:hover{border-color:var(--accent)}
 .lbtn.on{border-color:#2fd6c8;background:rgba(47,214,200,.16)}
 .lbtn.on img{opacity:1}
 
+/* quick place search inside the layers bar */
+.lsearch{position:relative;display:flex;align-items:center;margin-left:4px;padding-left:8px;border-left:1px solid var(--line)}
+.lsearch input{width:170px;height:40px;padding:0 28px 0 10px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:13px}
+.lsearch input:focus{outline:none;border-color:#2fd6c8}
+.lclear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mute);cursor:pointer;display:grid;place-items:center;padding:2px}
+.lres{position:absolute;right:0;top:calc(100% + 10px);width:300px;padding:4px;border-radius:12px;max-height:340px;overflow:auto}
+.lrow,.prow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;cursor:pointer}
+.lrow:hover,.prow:hover{background:var(--hover)}
+.lrow img,.prow img{width:26px;height:26px;object-fit:contain;flex-shrink:0}
+.lrow img.rd,.prow img.rd{border-radius:50%;border:2px solid #fff;object-fit:cover;background:#0d1219}
+.pn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm{color:var(--mute);font-size:11px;white-space:nowrap}
+
+/* 장소 window */
+.places{display:flex;flex-direction:column;flex:1;min-height:0}
+.places-search{padding:10px 12px 6px}
+.places-search input{width:100%;padding:8px 12px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:14px}
+.places-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 8px;border-bottom:1px solid var(--line)}
+.pchip{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--mute);border-radius:14px;padding:2px 10px 2px 6px;font-size:12px;cursor:pointer}
+.pchip img{width:16px;height:16px;object-fit:contain}
+.pchip b{font-weight:400;font-size:11px}
+.pchip.on{color:var(--text);border-color:#2fd6c8;background:rgba(47,214,200,.14)}
+.places-list{flex:1;min-height:0;overflow:auto;padding:6px}
+.prow.sel{background:var(--sel);outline:1px solid #2fd6c8}
+.places-foot{padding:6px 12px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
+
+/* highlighted place on the map */
+.hlmark{position:absolute;width:0;height:0;pointer-events:none;z-index:5}
+.hl-ring{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid #2fd6c8;box-shadow:0 0 12px #2fd6c8;animation:hlpulse 1.4s ease-out infinite}
+.hlmark img{position:absolute;left:-17px;top:-17px;width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 1px 3px #000)}
+.hlmark img.round{border-radius:50%;border:2px solid #fff;background:#0d1219;object-fit:cover}
+.hl-label{position:absolute;left:26px;top:-13px;white-space:nowrap;background:rgba(16,16,16,.85);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:12px}
+@keyframes hlpulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}
+
 /* ---- mobile (< 768px): bottom tab bar, list and detail as separate screens ---- */
 .backbar{display:none;align-items:center;gap:2px;background:none;border:0;color:var(--text);font:inherit;padding:0 0 10px;cursor:pointer}
 /* map-only page: pal chooser bar */
@@ -267,7 +305,9 @@ a.tag.link:hover{border-color:var(--accent)}
   .mode button{padding:9px}
   .pt b{font-size:18px}
   .mapbar{top:68px;max-width:calc(100% - 16px)}
-  .layersbar{top:8px}
+  .layersbar{top:8px;max-width:calc(100% - 16px)}
+  .lsearch input{width:110px}
+  .lres{width:min(300px,calc(100vw - 24px))}
   .note{left:12px;bottom:calc(70px + env(safe-area-inset-bottom))}
   .mapctl{bottom:calc(70px + env(safe-area-inset-bottom))}
   .tip.touch{left:12px!important;right:12px;top:auto!important;bottom:76px;width:auto!important;transform:none!important}

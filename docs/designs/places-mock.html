@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>장소 탭 시안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--line:rgba(255,255,255,.12);--sel:rgba(255,255,255,.11);--hover:rgba(255,255,255,.07);--text:#ececec;--mute:#a3a3a3;--accent2:#ffb84c}
+  *{box-sizing:border-box}
+  body{margin:0;background:#050505;color:var(--text);font:14px/1.5 "Oxanium","Noto Sans KR",sans-serif;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .sw{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .sw button{background:#1c1c1c;color:var(--text);border:1px solid #333;padding:6px 12px;border-radius:6px;cursor:pointer;font:inherit}
+  .sw button.on{background:#d9d9d9;color:#111}
+  .app{position:relative;width:1280px;height:760px;border-radius:10px;overflow:hidden;border:1px solid #333;background:#0b141c}
+  .layer{position:absolute;left:0;top:0;width:4096px;height:4096px;transform-origin:0 0;transition:transform .7s ease}
+  .layer img.map{position:absolute;inset:0;width:4096px;height:4096px}
+  .glass{background:rgba(16,16,16,.4);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);text-shadow:0 1px 2px rgba(0,0,0,.55)}
+  .rail{position:absolute;left:12px;top:12px;width:52px;display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:4px;z-index:9}
+  .rail a{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--mute);cursor:pointer}
+  .rail a.on{background:var(--sel);color:var(--text)}.rail svg{width:18px;height:18px;stroke-width:1.75}
+  .rail hr{width:26px;border:0;border-top:1px solid var(--line);margin:2px 0}
+  .win{position:absolute;left:76px;top:12px;width:340px;height:620px;display:flex;flex-direction:column;overflow:hidden;z-index:5}
+  .wt{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700}
+  .wt svg{width:16px;height:16px;color:var(--mute)}.wt span{flex:1}
+  .search{padding:10px 12px 6px}
+  .search input{width:100%;padding:8px 12px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 8px;border-bottom:1px solid var(--line)}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--mute);border-radius:14px;padding:2px 10px 2px 6px;font-size:12px;cursor:pointer}
+  .chip img{width:16px;height:16px;object-fit:contain}.chip.on{color:var(--text);border-color:#2fd6c8;background:rgba(47,214,200,.14)}
+  .chip b{font-weight:400;color:var(--mute);font-size:11px}
+  .list{flex:1;overflow:auto;padding:6px}
+  .row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;cursor:pointer}
+  .row:hover{background:var(--hover)}.row.sel{background:var(--sel);outline:1px solid #2fd6c8}
+  .row img{width:26px;height:26px;object-fit:contain;flex-shrink:0}.row img.rd{border-radius:50%;border:2px solid #fff;object-fit:cover;background:#0d1219}
+  .row .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .m{color:var(--mute);font-size:11px;white-space:nowrap}
+  mark{background:#ffb84c55;color:inherit;border-radius:2px}
+  .foot{padding:6px 12px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
+  .hl{position:absolute;pointer-events:none}
+  .hl .ring{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid #2fd6c8;box-shadow:0 0 12px #2fd6c8;animation:pulse 1.4s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}
+  .hl img{position:absolute;left:-17px;top:-17px;width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 1px 3px #000)}
+  .hl .lab{position:absolute;left:24px;top:-12px;white-space:nowrap;background:rgba(16,16,16,.8);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:12px}
+  .dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;border:1px solid #0008;opacity:.7}
+  .note{width:1280px;font-size:12px;color:var(--mute)}.note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="sw" id="sw"><b>예시:</b>
+  <button data-q="" class="on">처음 (전체)</button><button data-q="동굴">"동굴" 검색</button><button data-q="섬">"섬" 검색</button>
+  <span style="color:#a3a3a3;font-size:12px">※ 목록 항목을 눌러 보세요 (지도가 이동하고 표시됨)</span></div>
+<div class="app" id="app">
+  <div class="layer" id="layer"><img class="map" src="/map/palpagos.webp"><div id="dots"></div><div class="hl" id="hl" style="display:none"><div class="ring"></div><img id="hli"><div class="lab" id="hll"></div></div></div>
+  <div class="rail glass"><a><i data-lucide="backpack"></i></a><a><i data-lucide="paw-print"></i></a><a><i data-lucide="hammer"></i></a><a class="on" data-l="장소"><i data-lucide="map-pin"></i></a><hr><a><i data-lucide="eye-off"></i></a></div>
+  <div class="win glass"><div class="wt"><i data-lucide="map-pin"></i><span>장소</span><i data-lucide="x"></i></div>
+    <div class="search"><input id="q" placeholder="장소 검색 (예: 동굴, 섬, 이시스)"></div>
+    <div class="chips" id="chips"></div><div class="list" id="list"></div><div class="foot" id="foot"></div></div>
+</div>
+<div class="note"><b>바뀌는 것</b>: 왼쪽 레일에 <b>장소(핀 아이콘)</b> 메뉴가 추가되고, 누르면 다른 목록 창처럼 떠 있는 <b>장소 목록 창</b>이 열림(이동/크기 조절/기억 동일).<br>
+• <b>검색</b>: 이름으로 검색(일치 글자 강조). 검색 대상은 고속 이동(137) · 던전(170) · 세력 탑(8) · 알파 팰(83) 이름. 위쪽 칩으로 종류별 필터(여러 개 선택, 개수 표시).<br>
+• <b>항목 클릭</b> → 지도가 그 위치로 부드럽게 이동·확대되고, <b>깜빡이는 청록 링 + 이름표</b>로 표시됨(해당 레이어 토글이 꺼져 있어도 그 장소는 보임). 다른 항목을 누르면 표시가 옮겨가고, 창을 닫거나 같은 항목을 다시 누르면 해제.<br>
+• 알파 팰 항목은 원형 초상화, 나머지는 게임 아이콘. 레벨이 있으면 오른쪽에 "Lv.56" 표시. 지도 위쪽 표시 막대(고속 이동·탑·알파 팰·던전)와 별개로 동작.<br>
+<b>그대로인 것</b>: 지도/다른 창/표시 막대. 모바일은 하단 탭에 "장소"가 추가되고 목록 → 선택 시 지도로 이동하는 방식(제안).<br>
+<b>사용자가 정할 것</b>: ① 검색 대상에 더 넣을 종류(시안: 4종. 추가 후보: 도시·마을(73), 유적(106), 지역 이름(80), 낚시터 등) ② 항목을 눌렀을 때 창을 그대로 둘지/닫을지(시안: 그대로) ③ 같은 이름이 많은 던전(예: "동굴")은 이름 뒤에 Lv로만 구분할지, 좌표 번호를 붙일지.</div>
+<script>
+const I='/icons/', LAB={fast:'고속 이동',dungeon:'던전',tower:'세력 탑',alpha:'알파 팰'};
+let D=null,S={q:'',on:new Set(['fast','dungeon','tower','alpha']),sel:null,items:[]};
+const W=1280,H=760;
+fetch('/data/markers.json').then(r=>r.json()).then(j=>{D=j;
+  S.items=['fast','dungeon','tower','alpha'].flatMap(k=>j[k].map((m,i)=>({k,key:k+i,x:m.x,y:m.y,n:m.n||LAB[k],lv:m.lv,icon:m.i||j.icons[k],round:k==='alpha'&&!!m.i})));
+  render()});
+function view(x,y,sc){return `translate(${W/2+0-(x)*sc+170}px,${H/2-(y)*sc}px) scale(${sc})`}
+function render(){
+  if(!D)return;
+  const q=S.q.trim().toLowerCase();
+  const match=S.items.filter(i=>S.on.has(i.k)&&(!q||i.n.toLowerCase().includes(q)));
+  chips.innerHTML=Object.keys(LAB).map(k=>`<span class="chip ${S.on.has(k)?'on':''}" data-k="${k}"><img src="${I}${D.icons[k]}">${LAB[k]} <b>${D[k].length}</b></span>`).join('');
+  const shown=match.slice(0,60);
+  list.innerHTML=shown.map(i=>`<div class="row ${S.sel&&S.sel.key===i.key?'sel':''}" data-key="${i.key}"><img class="${i.round?'rd':''}" src="${I}${i.icon}"><span class="n">${hl(i.n,q)}</span><span class="m">${i.lv?'Lv.'+i.lv+' · ':''}${LAB[i.k]}</span></div>`).join('')||'<div style="padding:16px;color:#a3a3a3">결과 없음</div>';
+  foot.textContent=`검색 결과 ${match.length}곳${match.length>60?' (상위 60개 표시)':''}`;
+  // map: all matches as faint dots, selected one highlighted
+  dots.innerHTML=q?match.map(i=>`<span class="dot" style="left:${i.x}px;top:${i.y}px;width:${18/ (S.sc||.3)}px;height:${18/(S.sc||.3)}px;margin:${-9/(S.sc||.3)}px 0 0 ${-9/(S.sc||.3)}px"></span>`).join(''):'';
+  const h=document.getElementById('hl');
+  if(S.sel){const s=S.sel,sc=.9;S.sc=sc;layer.style.transform=view(s.x,s.y,sc);h.style.display='block';h.style.left=s.x+'px';h.style.top=s.y+'px';h.style.transform=`scale(${1/sc})`;hli.src=I+s.icon;hll.textContent=(s.lv?`Lv.${s.lv} `:'')+s.n}
+  else{h.style.display='none';S.sc=Math.min(W,H)/4096*1.05;layer.style.transform=`translate(${(W-4096*S.sc)/2+110}px,${(H-4096*S.sc)/2}px) scale(${S.sc})`}
+  lucide.createIcons();
+}
+function hl(t,q){const i=q?t.toLowerCase().indexOf(q):-1;return i<0?t:t.slice(0,i)+'<mark>'+t.slice(i,i+q.length)+'</mark>'+t.slice(i+q.length)}
+list.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const it=S.items.find(i=>i.key===r.dataset.key);S.sel=(S.sel&&S.sel.key===it.key)?null:it;render()};
+chips.onclick=e=>{const c=e.target.closest('.chip');if(!c)return;const k=c.dataset.k;S.on.has(k)?S.on.delete(k):S.on.add(k);render()};
+q.oninput=e=>{S.q=e.target.value;render()};
+sw.onclick=e=>{const d=e.target.dataset;if(d.q===undefined)return;S.q=d.q;q.value=d.q;S.sel=null;document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b===e.target));render()};
+</script>
+</body>
+</html>

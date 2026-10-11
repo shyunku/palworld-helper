@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import { useCallback, useRef, useState } from 'react'
 import { useStored } from './useStored'
 
-export type WinPage = 'items' | 'pals' | 'structs'
+export type WinPage = 'items' | 'pals' | 'structs' | 'places'
 
 export interface Win {
   id: string

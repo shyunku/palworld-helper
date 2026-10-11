@@ -1,11 +1,13 @@
-import { Backpack, Eye, EyeOff, Hammer, Map as MapIcon, PawPrint, type LucideIcon } from 'lucide-react'
+import { Backpack, Eye, EyeOff, Hammer, Map as MapIcon, MapPin, PawPrint, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { loadSpawns, useCatalog, type Catalog } from './data'
 import ItemsPage, { ItemDetail, ItemsList } from './ItemsPage'
 import type { Go } from './MatTable'
-import MapView, { boundsOf, spawnPoints } from './MapView'
+import MapView, { boundsOf, spawnPoints, type Focus, type Highlight } from './MapView'
 import PalsPage, { PalDetail, PalsList } from './PalsPage'
+import PlacesPanel from './PlacesPanel'
+import { buildPlaces, type Place } from './places'
 import StructsPage, { StructDetail, StructsList } from './StructsPage'
 import LayersBar from './LayersBar'
 import { toMapMarkers, useMarkers, type LayerKey } from './markers'
@@ -22,8 +24,14 @@ const MENU: { page: Page; icon: LucideIcon; label: string }[] = [
   { page: 'pals', icon: PawPrint, label: '팰' },
   { page: 'structs', icon: Hammer, label: '구조물' },
 ]
-const WIN_MENU = MENU.filter((m) => m.page !== 'map') as { page: WinPage; icon: LucideIcon; label: string }[]
-const isWinPage = (p?: string): p is WinPage => p === 'items' || p === 'pals' || p === 'structs'
+const WIN_MENU: { page: WinPage; icon: LucideIcon; label: string }[] = [
+  { page: 'items', icon: Backpack, label: '아이템' },
+  { page: 'pals', icon: PawPrint, label: '팰' },
+  { page: 'structs', icon: Hammer, label: '구조물' },
+  { page: 'places', icon: MapPin, label: '장소' },
+]
+/** pages that have detail windows / URLs (places only has the list window) */
+const isWinPage = (p?: string): p is Exclude<WinPage, 'places'> => p === 'items' || p === 'pals' || p === 'structs'
 
 export const MOBILE_QUERY = '(max-width: 767px)'
 
@@ -46,7 +54,12 @@ function useLayers() {
   const data = useMarkers()
   const [on, setOn] = useStored<Record<LayerKey, boolean>>('ui.layers', { fast: false, tower: false, alpha: false, dungeon: false })
   const markers = useMemo(() => toMapMarkers(data, on), [data, on])
-  return { data, on, setOn, markers }
+  const places = useMemo(() => buildPlaces(data), [data])
+  // the place picked in the 장소 window / quick search: it is drawn highlighted and the map flies to it
+  const [place, setPlace] = useState<Place | null>(null)
+  const highlight: Highlight | null = place ? { x: place.x, y: place.y, icon: place.icon, round: place.round, label: `${place.lv ? `Lv.${place.lv} ` : ''}${place.n}` } : null
+  const placeFocus: Focus | null = place ? { x0: place.x - 400, y0: place.y - 400, x1: place.x + 400, y1: place.y + 400 } : null
+  return { data, on, setOn, markers, places, place, setPlace, highlight, placeFocus }
 }
 
 /** Spawn dots (day/night) of one pal, plus the map area to focus on. */
@@ -114,8 +127,8 @@ function Desktop({ page, id }: { page?: string; id?: string }) {
 
   return (
     <div className="app">
-      <MapView points={points} markers={layers.markers} focus={focus} insets={{ l: 76, r: 12, t: 12, b: 12 }} />
-      <LayersBar data={layers.data} on={layers.on} setOn={layers.setOn} />
+      <MapView points={points} markers={layers.markers} highlight={layers.highlight} focus={layers.placeFocus ?? focus} insets={{ l: 76, r: 12, t: 12, b: 12 }} />
+      <LayersBar data={layers.data} on={layers.on} setOn={layers.setOn} places={layers.places} selected={layers.place} onPick={layers.setPlace} />
       <nav className="rail glass">
         {WIN_MENU.map(({ page: pg, icon: Icon, label }) => (
           <a key={pg} className={W.wins.some((w) => w.id === listId(pg)) ? 'on' : ''} data-l={label} onClick={() => W.toggleList(pg)}>
@@ -138,12 +151,16 @@ function Desktop({ page, id }: { page?: string; id?: string }) {
               icon={<Icon size={16} strokeWidth={1.75} />}
               focused={w.z === (w.kind === 'list' ? topList : topDetail)}
               onFocus={() => W.focus(w.id)}
-              onClose={() => W.close(w.id)}
+              onClose={() => {
+                W.close(w.id)
+                if (w.page === 'places') layers.setPlace(null) // closing the 장소 window clears its map highlight
+              }}
               onChange={(patch) => W.update(w.id, patch)}
             >
               {w.kind === 'list' ? (
                 w.page === 'items' ? <ItemsList catalog={catalog} selId={selOf('items')} go={go} />
                 : w.page === 'pals' ? <PalsList catalog={catalog} selId={selOf('pals')} go={go} />
+                : w.page === 'places' ? <PlacesPanel data={layers.data} places={layers.places} selected={layers.place} onSelect={layers.setPlace} />
                 : <StructsList catalog={catalog} selId={selOf('structs')} go={go} />
               ) : w.page === 'items' ? (
                 <ItemDetail item={catalog?.itemById.get(w.itemId!)} catalog={catalog} go={go} />
@@ -179,8 +196,8 @@ function Mobile({ page, id }: { page?: string; id?: string }) {
 
   return (
     <div className={`app ${mapOnly ? 'maponly' : ''}`}>
-      <MapView points={points} markers={layers.markers} focus={focus} insets={{ l: 0, r: 0, t: 0, b: 58 }} note={palName && mapOnly ? `${palName} 서식 위치 · ${time === 'd' ? '낮' : '밤'} · ${points.length}곳` : undefined} />
-      {mapOnly && <LayersBar data={layers.data} on={layers.on} setOn={layers.setOn} />}
+      <MapView points={points} markers={layers.markers} highlight={layers.highlight} focus={layers.placeFocus ?? focus} insets={{ l: 0, r: 0, t: 0, b: 58 }} note={palName && mapOnly ? `${palName} 서식 위치 · ${time === 'd' ? '낮' : '밤'} · ${points.length}곳` : undefined} />
+      {mapOnly && <LayersBar data={layers.data} on={layers.on} setOn={layers.setOn} places={layers.places} selected={layers.place} onPick={layers.setPlace} />}
       {mapOnly && palId && (
         <div className="mapbar glass">
           <b>{palName}</b>
