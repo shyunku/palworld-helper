@@ -1,5 +1,5 @@
 import {
-  Anchor, Archive, Armchair, Beef, BookOpen, BrickWall, Bomb, Boxes, Carrot, CircleDot, Crosshair, Egg, Ellipsis, Factory,
+  Anchor, Archive, Armchair, Building, DoorOpen, Flag, Gamepad2, Landmark, Leaf, Sofa, Stamp, Table, TrafficCone, Hammer, Wrench, CookingPot, Flame, Hospital, BedDouble, Beef, BookOpen, BrickWall, Bomb, Boxes, Carrot, CircleDot, Crosshair, Egg, Ellipsis, Factory,
   Fish, FlaskConical, Folder, Gem, HardHat, Heart, Lamp, Layers, Library, Mountain, PawPrint, Pill, PlugZap, Puzzle, ScrollText,
   Shield, ShieldHalf, Shirt, Star, Sword, Syringe, Target, TrendingUp, Trees, UtensilsCrossed, Wind, Coins, Zap,
   type LucideIcon,
@@ -25,6 +25,15 @@ const ICONS: Record<string, LucideIcon> = {
   // structure categories
   건축: BrickWall, 생산: Factory, 수납: Archive, 인프라: PlugZap, 팰: PawPrint, 방어: ShieldHalf, 가구: Armchair, 식료품: UtensilsCrossed,
   기타: Ellipsis,
+  // 건축 materials / parts
+  나무: Trees, 돌: Mountain, 금속: Layers, 유리: Gem, 미래식: Zap, 고대: Landmark, 일본식: Building, '기타 재질': Ellipsis,
+  토대: BrickWall, 벽: BrickWall, 지붕: Building, 계단: TrendingUp, '문·출입구': DoorOpen, 기둥: Landmark, 울타리: ShieldHalf, 사다리: TrendingUp,
+  // 가구
+  모형: Boxes, '앤티크 세트': Armchair, '의자·소파': Sofa, '탁자·책상': Table, '깃발·표식·간판': Flag, '식물·조경': Leaf, 카펫: Layers,
+  바리케이드: ShieldHalf, '선반·수납장': Archive, 침대: BedDouble, '석상·조각': Stamp, '악기·가전·오락': Gamepad2, '도로·공사': TrafficCone, '일본풍 장식': Landmark,
+  // game sub categories of the other build categories
+  제작대: Hammer, '자원 생산': Mountain, '화로·제련': Flame, 제약: FlaskConical, '스피어 제작': CircleDot, '교배·사육': Heart, '팰 개조': Wrench,
+  보관함: Archive, '일반 시설': Building, 발전: Zap, '침대·의료': Hospital, '방어 시설': ShieldHalf, '식량·조리': CookingPot, 농업: Leaf,
 }
 
 /** Folder icon: game icon for element / work folders, lucide for the rest (sub folders fall back to the parent's icon). */

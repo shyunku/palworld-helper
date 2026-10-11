@@ -38,6 +38,11 @@ def parse_detail(html):
     info = {}
     m = re.search(r"<div>Type</div>\s*<div><a href=\"[^\"]+\">([^<]+)</a>", html)
     info["cat"] = unescape(m.group(1)) if m else "기타"
+    # game sub category (TypeB), e.g. Prod_Craft / Prod_Furnace; used to split the big folders
+    kv = {}
+    for k, v in re.findall(r"<div>([A-Za-z]+)</div>\s*<div>([^<]*)</div>", html):
+        kv.setdefault(k, v.strip())
+    info["typeB"] = kv.get("TypeB")
     m = re.search(r">기술</span></span><span class=\"border p-1\">(\d+)<", html)
     info["techLv"] = int(m.group(1)) if m else None
     m = re.search(r">SAN</span><span class=\"border p-1\">([^<]+)<", html)

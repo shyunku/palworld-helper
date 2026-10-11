@@ -44,6 +44,7 @@ export interface Struct {
   icon: string
   desc: string
   cat: string
+  typeB?: string | null
   techLv: number | null
   san: string | null
   works?: { icon: string; lv: number }[]

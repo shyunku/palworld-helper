@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Entry, Item, Material, Pal, SpawnData, Struct, TreeNode } from './types'
 import { labelA, labelB, TYPE_A } from './labels'
+import { structPath, subCounts } from './structGroups'
 
 const base = import.meta.env.BASE_URL
 
@@ -87,14 +88,16 @@ export const palEntries = (pals: Pal[]): Entry[] =>
     },
   }))
 
-export const structEntries = (structs: Struct[]): Entry[] =>
-  structs.map((s) => ({
+export const structEntries = (structs: Struct[]): Entry[] => {
+  const subs = subCounts(structs)
+  return structs.map((s) => ({
     id: s.id,
     name: s.name,
     icon: s.icon,
     sub: s.techLv ? `Lv.${s.techLv}` : '',
-    paths: { cat: [[s.cat]] },
+    paths: { cat: [structPath(s, subs)] },
   }))
+}
 
 // ---- tree ----
 
