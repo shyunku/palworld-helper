@@ -235,7 +235,7 @@ a.tag.link:hover{border-color:var(--accent)}
 .mmark.round{border-radius:50%;border:2px solid #fff;background:#0d1219;object-fit:cover}
 
 /* fixed marker-layer bar (top center of the map) */
-.layersbar{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;z-index:8000}
+.layersbar{position:absolute;left:calc(50% - 191px);top:12px;display:flex;gap:6px;padding:6px;z-index:8000}
 .lbtn{width:40px;height:40px;display:grid;place-items:center;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;cursor:pointer;padding:0}
 .lbtn img{width:26px;height:26px;object-fit:contain;opacity:.45}
 .lbtn:hover img{opacity:.8}
@@ -244,9 +244,9 @@ a.tag.link:hover{border-color:var(--accent)}
 
 /* quick place search inside the layers bar */
 .lsearch{position:relative;display:flex;align-items:center;margin-left:4px;padding-left:8px;border-left:1px solid var(--line)}
-.lsearch input{width:170px;height:40px;padding:0 28px 0 10px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:13px}
-.lsearch input:focus{outline:none;border-color:#2fd6c8}
-.lclear{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mute);cursor:pointer;display:grid;place-items:center;padding:2px}
+.lsearch input{width:170px;height:40px;padding:0 42px 0 15px;transition:width .25s ease,border-color .15s;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:13px}
+.lsearch input:focus{outline:none;border-color:#2fd6c8;width:255px} /* 150% of the resting width */
+.lclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mute);cursor:pointer;display:grid;place-items:center;padding:2px}
 .lres{position:absolute;right:0;top:calc(100% + 10px);width:300px;padding:4px;border-radius:12px;max-height:340px;overflow:auto}
 .lrow,.prow{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;cursor:pointer}
 .lrow:hover,.prow:hover{background:var(--hover)}
@@ -305,7 +305,7 @@ a.tag.link:hover{border-color:var(--accent)}
   .mode button{padding:9px}
   .pt b{font-size:18px}
   .mapbar{top:68px;max-width:calc(100% - 16px)}
-  .layersbar{top:8px;max-width:calc(100% - 16px)}
+  .layersbar{top:8px;left:50%;transform:translateX(-50%);max-width:calc(100% - 16px)}
   .lsearch input{width:110px}
   .lres{width:min(300px,calc(100vw - 24px))}
   .note{left:12px;bottom:calc(70px + env(safe-area-inset-bottom))}
