@@ -46,37 +46,47 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
   const goal = Math.max(1, goalMap[goalKey] ?? 1)
   const byId = catalog.itemById
 
-  const { tree, baseNeed, baseHeld, openKinds, allKeys } = useMemo(() => {
-    const pool = { ...inv }
-    const keys: string[] = []
-    const open = new Set<string>()
-    let baseNeed = 0
-    let baseHeld = 0
-    const build = (id: string, qty: number, parentRem: number, path: string, depth: number): Node | null => {
-      const it = byId.get(id)
-      if (!it) return null
-      const need = qty * parentRem
-      const held = Math.min(pool[id] ?? 0, need)
-      pool[id] = (pool[id] ?? 0) - held
-      const key = `${path}/${id}`
-      const rem = need - held
-      const recipe = depth < MAX_DEPTH ? (it.recipe ?? []) : []
-      if (!recipe.length) {
-        baseNeed += need
-        baseHeld += held
-        if (rem > 0) open.add(id)
-      } else keys.push(key)
-      return {
-        key,
-        id,
-        qty,
-        need,
-        held,
-        kids: recipe.map((m) => build(m.id, m.qty, rem, key, depth + 1)).filter(Boolean) as Node[],
+  const { tree, percent, openKinds, allKeys } = useMemo(() => {
+    /** one pass over the whole tree (collapsed parts included) with the given stock */
+    const run = (stock: Record<string, number>) => {
+      const pool = { ...stock }
+      const keys: string[] = []
+      const open = new Set<string>()
+      let baseNeed = 0
+      let baseHeld = 0
+      const build = (id: string, qty: number, parentRem: number, path: string, depth: number): Node | null => {
+        const it = byId.get(id)
+        if (!it) return null
+        const need = qty * parentRem
+        const held = Math.min(pool[id] ?? 0, need)
+        pool[id] = (pool[id] ?? 0) - held
+        const key = `${path}/${id}`
+        const rem = need - held
+        const recipe = depth < MAX_DEPTH ? (it.recipe ?? []) : []
+        if (!recipe.length) {
+          baseNeed += need
+          baseHeld += held
+          if (rem > 0) open.add(id)
+        } else keys.push(key)
+        return {
+          key,
+          id,
+          qty,
+          need,
+          held,
+          kids: recipe.map((m) => build(m.id, m.qty, rem, key, depth + 1)).filter(Boolean) as Node[],
+        }
       }
+      const tree = roots.map(([id, q]) => build(id, q, goal, 'r', 0)).filter(Boolean) as Node[]
+      return { tree, keys, open, baseNeed, baseHeld }
     }
-    const tree = roots.map(([id, q]) => build(id, q, goal, 'r', 0)).filter(Boolean) as Node[]
-    return { tree, baseNeed, baseHeld, openKinds: open.size, allKeys: keys }
+    const now = run(inv)
+    // progress = how much of the raw-material total (with nothing in stock) is no longer needed.
+    // Holding a finished intermediate (e.g. 플라스틸) removes all of its sub-materials, which counts too.
+    const total = run({}).baseNeed
+    const remaining = now.baseNeed - now.baseHeld
+    const percent = total ? Math.max(0, Math.min(100, Math.round((1 - remaining / total) * 100))) : 0
+    return { tree: now.tree, percent, openKinds: now.open.size, allKeys: now.keys }
   }, [roots, inv, goal, byId])
 
   const toggle = (key: string) =>
@@ -87,7 +97,6 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
       return n
     })
 
-  const percent = baseNeed ? Math.round((baseHeld / baseNeed) * 100) : 0
   const setHave = (id: string, v: number) => setInv({ ...inv, [id]: Math.max(0, Math.floor(v) || 0) })
 
   const row = (n: Node): React.ReactNode => {
