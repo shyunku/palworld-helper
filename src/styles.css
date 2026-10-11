@@ -215,12 +215,27 @@ a.tag.link:hover{border-color:var(--accent)}
 .rt-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rt-q{text-align:right;color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums}
 .rt-t{text-align:right;color:#ffd23f;font-size:13px;font-variant-numeric:tabular-nums}
-.rt-have input{width:100%;padding:2px 4px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:5px;color:var(--text);text-align:right;font-size:13px;font-family:inherit}
-.rt-alloc{display:block;text-align:right;color:var(--mute);font-size:12px;padding:2px 6px;border:1px dashed var(--line);border-radius:5px;opacity:.8}
+/* flat number field: no box, just an underline */
+.rt-have input{width:100%;padding:2px 2px;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;color:var(--text);text-align:right;font-size:13px;font-family:inherit;font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+.rt-have input:hover{border-bottom-color:rgba(255,255,255,.35)}
+.rt-have input:focus{outline:none;border-bottom-color:#2fd6c8;background:rgba(255,255,255,.05)}
+.rt-have input::-webkit-outer-spin-button,.rt-have input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .rt-left{text-align:right;font-size:13px;color:#ff8a5c;font-variant-numeric:tabular-nums}
 .rt-left.ok{color:#6fe38d}
 .rt-item .rt-bar{margin-left:26px}
 .rt-kids{margin-left:11px;border-left:1px solid var(--line);padding-left:6px}
+
+/* map markers */
+.mmark{position:absolute;pointer-events:auto;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
+.mmark.round{border-radius:50%;border:2px solid #fff;background:#0d1219;object-fit:cover}
+
+/* fixed marker-layer bar (top center of the map) */
+.layersbar{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;z-index:8000}
+.lbtn{width:40px;height:40px;display:grid;place-items:center;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;cursor:pointer;padding:0}
+.lbtn img{width:26px;height:26px;object-fit:contain;opacity:.45}
+.lbtn:hover img{opacity:.8}
+.lbtn.on{border-color:#2fd6c8;background:rgba(47,214,200,.16)}
+.lbtn.on img{opacity:1}
 
 /* ---- mobile (< 768px): bottom tab bar, list and detail as separate screens ---- */
 .backbar{display:none;align-items:center;gap:2px;background:none;border:0;color:var(--text);font:inherit;padding:0 0 10px;cursor:pointer}

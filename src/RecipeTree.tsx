@@ -30,8 +30,6 @@ interface Node {
   need: number
   /** how many of `need` are covered by holdings */
   held: number
-  /** first occurrence of this item in the tree: the only row that has the holding input */
-  first: boolean
   kids: Node[]
 }
 
@@ -39,6 +37,7 @@ interface Node {
  * Crafting tree with a goal: materials of the viewed entry, then their own materials, and so on.
  * Holdings of intermediate items reduce what their sub-materials still need; holdings are used
  * from the top of the tree downwards, so an item that appears twice only counts its stock once.
+ * Every row has a holding input; the value is shared by all rows of the same item.
  */
 export default function RecipeTree({ goalKey, roots, catalog, go, title = '조합식 · 목표' }: Props) {
   const [open, setOpen] = useState<Set<string>>(new Set())
@@ -49,7 +48,6 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
 
   const { tree, baseNeed, baseHeld, openKinds, allKeys } = useMemo(() => {
     const pool = { ...inv }
-    const seen = new Set<string>()
     const keys: string[] = []
     const open = new Set<string>()
     let baseNeed = 0
@@ -60,8 +58,6 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
       const need = qty * parentRem
       const held = Math.min(pool[id] ?? 0, need)
       pool[id] = (pool[id] ?? 0) - held
-      const first = !seen.has(id)
-      seen.add(id)
       const key = `${path}/${id}`
       const rem = need - held
       const recipe = depth < MAX_DEPTH ? (it.recipe ?? []) : []
@@ -76,7 +72,6 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
         qty,
         need,
         held,
-        first,
         kids: recipe.map((m) => build(m.id, m.qty, rem, key, depth + 1)).filter(Boolean) as Node[],
       }
     }
@@ -115,17 +110,14 @@ export default function RecipeTree({ goalKey, roots, catalog, go, title = '조�
             <span className="rt-q">×{n.qty}</span>
             <span className="rt-t">{n.need}</span>
             <span className="rt-have">
-              {n.first ? (
-                <input
-                  type="number"
-                  min={0}
-                  value={inv[n.id] ?? 0}
-                  onChange={(e) => setHave(n.id, +e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                />
-              ) : (
-                <span className="rt-alloc" title="같은 재료가 위쪽 줄에도 있어서 보유량은 위에서부터 먼저 사용돼요">{n.held}</span>
-              )}
+              <input
+                type="number"
+                min={0}
+                value={inv[n.id] ?? 0}
+                title="같은 재료는 어느 줄에서 고쳐도 같은 보유량을 공유해요. 계산은 위에서부터 차례로 사용해요."
+                onChange={(e) => setHave(n.id, +e.target.value)}
+                onFocus={(e) => e.target.select()}
+              />
             </span>
             <span className={`rt-left ${done ? 'ok' : ''}`}>{done ? '✓' : rem}</span>
           </div>

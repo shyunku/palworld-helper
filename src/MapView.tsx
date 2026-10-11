@@ -5,7 +5,8 @@ import type { MapMarker } from './markers'
 import type { SpawnData } from './types'
 
 export const MAP_SIZE = 4096
-const MIN = 0.05
+/** the smallest the map may get: this fraction of the size at which the whole map just fits the screen */
+const MIN_FIT_RATIO = 0.8
 const MAX = 2
 
 interface View {
@@ -66,6 +67,12 @@ export default function MapView({ points = [], markers = [], focus = null, inset
   const [v, setV] = useState<View>({ x: 0, y: 0, s: 0.2 })
   const [anim, setAnim] = useState(false)
 
+  /** minimum zoom for the current container size */
+  const minScale = () => {
+    const r = box.current!.getBoundingClientRect()
+    return (MIN_FIT_RATIO * Math.min(r.width, r.height)) / MAP_SIZE
+  }
+
   const focusKey = focus ? `${focus.x0},${focus.y0},${focus.x1},${focus.y1}` : ''
   // latest props for the fit callback without making it re-run when panels open/close
   const live = useRef({ focus, insets })
@@ -81,7 +88,7 @@ export default function MapView({ points = [], markers = [], focus = null, inset
     const pad = focus ? 260 : 0
     const w = Math.max(f.x1 - f.x0, 200) + pad
     const h = Math.max(f.y1 - f.y0, 200) + pad
-    const s = Math.min(aw / w, ah / h, focus ? 1.2 : 1)
+    const s = Math.max(minScale(), Math.min(aw / w, ah / h, focus ? 1.2 : 1))
     const cx = (f.x0 + f.x1) / 2
     const cy = (f.y0 + f.y1) / 2
     setAnim(animate)
@@ -116,7 +123,7 @@ export default function MapView({ points = [], markers = [], focus = null, inset
   const zoomAt = (cx: number, cy: number, factor: number) => {
     setAnim(false)
     setV((p) => {
-      const s = Math.min(MAX, Math.max(MIN, p.s * factor))
+      const s = Math.min(MAX, Math.max(minScale(), p.s * factor))
       const k = s / p.s
       return { s, x: cx - (cx - p.x) * k, y: cy - (cy - p.y) * k }
     })
