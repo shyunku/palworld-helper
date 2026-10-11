@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>backdrop-filter 진단</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#101820;color:#eee;font:14px/1.5 sans-serif;padding:16px}
+  h1{font-size:16px;margin:0 0 4px}.sub{color:#9ab;margin:0 0 14px;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .case{position:relative;height:170px;border:1px solid #345;border-radius:8px;overflow:hidden;
+    background:repeating-linear-gradient(45deg,#e33 0 10px,#fff 10px 20px,#36e 20px 30px)}
+  .case>b{position:absolute;left:6px;top:4px;font-size:12px;background:#000a;padding:0 6px;border-radius:4px;z-index:5}
+  .g{position:absolute;left:30px;top:30px;width:200px;height:100px;padding:10px;font-size:13px;
+    background:rgba(16,16,16,.4);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  /* B: radius + overflow */
+  .B .g{border-radius:14px;overflow:hidden;border:1px solid #fff3}
+  /* C: transition */
+  .C .g{transition:background-color .15s,opacity .15s}
+  /* D: text-shadow */
+  .D .g{text-shadow:0 1px 2px rgba(0,0,0,.55)}
+  /* E: huge transformed layer behind (like the map) */
+  .E .big{position:absolute;left:0;top:0;width:4096px;height:4096px;transform-origin:0 0;transform:scale(.06);
+    background:repeating-linear-gradient(45deg,#e33 0 200px,#fff 200px 400px,#36e 400px 600px)}
+  .E{background:#000}
+  /* F: two overlapping glass windows (back one dimmed through its children) */
+  .F .g.back{left:14px;top:26px;width:170px;height:110px;background:rgba(16,16,16,.12);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  .F .g.back>div{opacity:.3}
+  .F .g.front{left:80px;top:50px;width:170px;height:100px}
+  /* G: whole-window opacity on the back one (old approach) */
+  .G .g.back{left:14px;top:26px;width:170px;height:110px;opacity:.3}
+  .G .g.front{left:80px;top:50px;width:170px;height:100px}
+  /* H: a parent with will-change/transform */
+  .H .wrap{position:absolute;inset:0;transform:translateZ(0)}
+  .res{margin:14px 0;padding:8px 12px;background:#0006;border-radius:8px;font-size:13px}
+</style>
+</head>
+<body>
+<h1>backdrop-filter 진단 페이지</h1>
+<p class="sub">각 칸의 어두운 카드 <b>뒤의 줄무늬가 번져 보이면 정상</b>, 줄무늬가 또렷하게 보이면 그 조건에서 블러가 안 걸리는 거예요. 화면을 캡처해서 보내주세요.</p>
+<div class="res" id="res"></div>
+<div class="grid">
+  <div class="case A"><b>A 기본</b><div class="g">blur(14px) 기본</div></div>
+  <div class="case B"><b>B 둥근 모서리 + overflow:hidden</b><div class="g">radius + overflow</div></div>
+  <div class="case C"><b>C transition 있음</b><div class="g">transition</div></div>
+  <div class="case D"><b>D text-shadow 있음</b><div class="g">text-shadow</div></div>
+  <div class="case E"><b>E 아주 큰 변형 레이어 위</b><div class="big"></div><div class="g">큰 scale 레이어(지도처럼)</div></div>
+  <div class="case F"><b>F 겹친 창 (뒤 창은 내용만 흐림)</b><div class="g back"><div>뒤 창 글자 뒤 창 글자 뒤 창 글자</div></div><div class="g front">앞 창</div></div>
+  <div class="case G"><b>G 겹친 창 (뒤 창 opacity .3)</b><div class="g back">뒤 창 글자 뒤 창 글자 뒤 창 글자</div><div class="g front">앞 창</div></div>
+  <div class="case H"><b>H 부모에 translateZ(0)</b><div class="wrap"><div class="g">부모 변형</div></div></div>
+</div>
+<script>
+const ok=CSS.supports('backdrop-filter','blur(1px)')||CSS.supports('-webkit-backdrop-filter','blur(1px)');
+res.innerHTML=`브라우저: ${navigator.userAgent}<br>backdrop-filter 지원: <b>${ok?'예':'아니오'}</b> · devicePixelRatio: ${devicePixelRatio} · 화면: ${innerWidth}x${innerHeight}`;
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import PalsPage, { PalDetail, PalsList } from './PalsPage'
 import PlacesPanel from './PlacesPanel'
 import { buildPlaces, type Place } from './places'
 import StructsPage, { StructDetail, StructsList } from './StructsPage'
+import BlurDebug from './BlurDebug'
 import LayersBar from './LayersBar'
 import { toMapMarkers, useMarkers, type LayerKey } from './markers'
 import TooltipLayer from './Tooltip'
@@ -178,6 +179,7 @@ function Desktop({ page, id }: { page?: string; id?: string }) {
           )
         })}
       <TooltipLayer catalog={catalog} />
+      {new URLSearchParams(location.search).get('debug') === 'blur' && <BlurDebug />}
     </div>
   )
 }
